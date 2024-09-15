@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 final class Customers extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
         $this->table('customer')
             ->addColumn('details_id', 'integer', ['signed' => false, 'null' => true])
@@ -71,12 +71,34 @@ final class Customers extends AbstractMigration
             ->addForeignKey('target_customer_id', 'customer', 'id')
             ->create();
 
-        $this->query('DROP view if exists customer_list');
         $view = <<<VIEW
 SELECT c.id, c.user_id, d.email, d.forename, d.surname, d.mobile_number, d.date_of_birth from customer c
 INNER JOIN customer_details d on c.details_id=d.id
 VIEW;
 
         $this->query('CREATE view customer_list AS ' . $view);
+    }
+
+    public function down(): void
+    {
+        $this->query('DROP view customer_list');
+        $this->table('customer_merge')
+            ->drop()->update();
+        $this->table('customer_history')
+            ->drop()->update();
+        $this->table('customer_locations')
+            ->drop()->update();
+        $this->table('customer')
+            ->dropForeignKey('details_id')
+            ->update();
+        $this->table('customer_details_field')
+            ->drop()->update();
+        $this->table('customer_field')
+            ->drop()->update();
+        $this->table('customer_details')
+            ->drop()->update();
+        $this->table('customer')
+            ->drop()->update();
+
     }
 }
