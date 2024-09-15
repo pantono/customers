@@ -36,8 +36,8 @@ final class Customers extends AbstractMigration
             ->create();
 
         $this->table('customer_details_field')
-            ->addColumn('details_id', 'integer')
-            ->addColumn('field_id', 'integer')
+            ->addColumn('details_id', 'integer', ['signed' => false])
+            ->addColumn('field_id', 'integer', ['signed' => false])
             ->addColumn('value', 'string', ['null' => true])
             ->addForeignKey('details_id', 'customer_details', 'id')
             ->addForeignKey('field_id', 'customer_field', 'id')
