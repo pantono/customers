@@ -1,2 +1,4 @@
 Customers:
   class: Pantono\Customers\Customers
+Companies:
+  class: Pantono\Customers\Companies
