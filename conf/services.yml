@@ -1,6 +1,6 @@
 Customers:
   class: Pantono\Customers\Customers
-  services:
+  parameters:
     - :Pantono\Customers\Repository\CustomersRepository
     - "@Hydrator"
     - "@EventDispatcher"
