@@ -8,6 +8,7 @@ final class Customers extends AbstractMigration
 {
     public function change(): void
     {
+        $this->query('SET FOREIGN_KEY_CHECKS=0');
         $this->table('customer')
             ->addColumn('details_id', 'integer', ['signed' => false, 'null' => true])
             ->addColumn('user_id', 'integer', ['signed' => false, 'null' => true])
@@ -51,13 +52,9 @@ final class Customers extends AbstractMigration
             ->addForeignKey('location_id', 'location', 'id')
             ->create();
 
-        if ($this->isMigratingUp) {
+        if ($this->isMigratingUp()) {
             $this->table('customer')
                 ->addForeignKey('details_id', 'customer_details', 'id')
-                ->update();
-        } else {
-            $this->table('customer')
-                ->dropForeignKey('details_id')
                 ->update();
         }
 
@@ -112,5 +109,6 @@ VIEW;
         } else {
             $this->query('DROP view customer_list');
         }
+        $this->query('SET FOREIGN_KEY_CHECKS=1');
     }
 }
