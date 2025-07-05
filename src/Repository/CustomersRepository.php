@@ -107,8 +107,8 @@ class CustomersRepository extends MysqlRepository
                 'date_of_birth' => $details->getDateOfBirth()?->format('Y-m-d')
             ]);
             $customer->getDetails()->setId((int)$this->getDb()->lastInsertId());
-            $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $details->getCustomerId()], ['id' => $customer->getId()]);
         }
+        $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $details->getCustomerId()], ['id' => $customer->getId()]);
         foreach ($customer->getDetails()->getFields() as $field) {
             $this->getDb()->insert('customer_field', [
                 'field_id' => $field->getField()->getId(),
