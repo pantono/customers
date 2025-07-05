@@ -1,4 +1,8 @@
 Customers:
   class: Pantono\Customers\Customers
+  services:
+    - :Pantono\Customers\Repository\CustomersRepository
+    - "@Hydrator"
+    - "@EventDispatcher"
 Companies:
   class: Pantono\Customers\Companies
