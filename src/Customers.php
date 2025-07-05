@@ -106,12 +106,12 @@ class Customers
                 $customer = $this->getCustomerByEmail($parameters->get('email'));
                 if (!$customer) {
                     $customer = new Customer();
-                    $details = new CustomerDetails();
-                    $customer->setDetails($details);
+                    $customer->setDetails(new CustomerDetails());
                 }
             }
         }
-        if ($details = $customer->getDetails() === null) {
+        $details = $customer->getDetails();
+        if ($details === null) {
             $details = new CustomerDetails();
             $customer->setDetails($details);
         }
