@@ -221,4 +221,13 @@ class CustomersRepository extends MysqlRepository
 
         $this->getDb()->insert('customer_flat', $fields);
     }
+
+    public function getCustomerByEmail(string $email): ?array
+    {
+        $select = $this->getDb()->select()->from('customer')
+            ->joinInner('customer_details', 'customer.details_id=customer_details.id', [])
+            ->where('customer_details.email=?', $email);
+
+        return $this->selectSingleRowFromQuery($select);
+    }
 }

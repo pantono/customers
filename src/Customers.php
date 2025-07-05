@@ -36,6 +36,11 @@ class Customers
         return $this->hydrator->hydrate(Customer::class, $this->repository->getCustomerById($id));
     }
 
+    public function getCustomerByEmail(string $email): ?Customer
+    {
+        return $this->hydrator->hydrate(Customer::class, $this->repository->getCustomerByEmail($email));
+    }
+
     public function getCustomerListById(int $id): ?CustomerList
     {
         return $this->hydrator->hydrate(CustomerList::class, $this->repository->getCustomerListById($id));
@@ -94,8 +99,16 @@ class Customers
     }
 
 
-    public function updateCustomerFromParameters(Customer $customer, ParameterBag $parameters, bool $autoCreateFields = false): void
+    public function updateCustomerFromParameters(?Customer $customer, ParameterBag $parameters, bool $autoCreateFields = false): void
     {
+        if ($customer === null || !$customer->getId()) {
+            if ($parameters->has('email')) {
+                $customer = $this->getCustomerByEmail($parameters->get('email'));
+                if (!$customer) {
+                    $customer = new Customer();
+                }
+            }
+        }
         if ($details = $customer->getDetails() === null) {
             $details = new CustomerDetails();
             $customer->setDetails($details);
