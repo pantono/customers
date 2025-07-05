@@ -71,16 +71,43 @@ final class Customers extends AbstractMigration
             ->addForeignKey('target_customer_id', 'customer', 'id')
             ->create();
 
+        $this->table('customer_external_id')
+            ->addColumn('customer_id', 'integer', ['signed' => false])
+            ->addColumn('id_type', 'string')
+            ->addColumn('date_created', 'datetime')
+            ->addColumn('date_updated', 'datetime')
+            ->addColumn('identifier', 'string')
+            ->addColumn('deleted', 'boolean')
+            ->addForeignKey('customer_id', 'customer', 'id')
+            ->addIndex('id_type')
+            ->addIndex('identifier')
+            ->addIndex(['id_type', 'identifier', 'deleted'])
+            ->create();
+
         $view = <<<VIEW
 SELECT c.id, c.user_id, d.email, d.forename, d.surname, d.mobile_number, d.date_of_birth from customer c
 INNER JOIN customer_details d on c.details_id=d.id
 VIEW;
 
         $this->query('CREATE view customer_list AS ' . $view);
+
+        $this->table('customer_flat')
+            ->addColumn('user_id', 'integer', ['null' => true])
+            ->addColumn('email', 'string', ['null' => true])
+            ->addColumn('forename', 'string')
+            ->addColumn('surname', 'string')
+            ->addColumn('mobile_number', 'string', ['null' => true])
+            ->addColumn('date_of_birth', 'date', ['null' => true])
+            ->addIndex('email')
+            ->addIndex('forename')
+            ->addIndex('surname')
+            ->create();
     }
 
     public function down(): void
     {
+        $this->table('customer_flat')
+            ->drop()->update();
         $this->query('DROP view customer_list');
         $this->table('customer_merge')
             ->drop()->update();

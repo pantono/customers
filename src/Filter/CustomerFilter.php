@@ -15,6 +15,8 @@ class CustomerFilter implements PageableInterface
      * @var array<string,mixed>
      */
     private ?array $fields = null;
+    private ?string $externalIdType = null;
+    private ?string $externalIdValue = null;
 
     public function getSearch(): ?string
     {
@@ -47,5 +49,25 @@ class CustomerFilter implements PageableInterface
     public function getFields(): ?array
     {
         return $this->fields;
+    }
+
+    public function getExternalIdType(): ?string
+    {
+        return $this->externalIdType;
+    }
+
+    public function setExternalIdType(?string $externalIdType): void
+    {
+        $this->externalIdType = $externalIdType;
+    }
+
+    public function getExternalIdValue(): ?string
+    {
+        return $this->externalIdValue;
+    }
+
+    public function setExternalIdValue(?string $externalIdValue): void
+    {
+        $this->externalIdValue = $externalIdValue;
     }
 }

@@ -3,6 +3,9 @@
 namespace Pantono\Customers\Model;
 
 use Pantono\Authentication\Model\User;
+use Pantono\Contracts\Attributes\Locator;
+use Pantono\Customers\Customers;
+use Pantono\Contracts\Attributes\FieldName;
 
 class Customer
 {
@@ -10,6 +13,11 @@ class Customer
     private \DateTimeInterface $dateCreated;
     private ?User $user = null;
     private CustomerDetails $details;
+    /**
+     * @var CustomerExternalId[]
+     */
+    #[Locator(methodName: 'getExternalIdsForCustomer', className: Customers::class), FieldName('$this')]
+    private array $externalIds = [];
 
     public function getId(): ?int
     {
@@ -40,7 +48,7 @@ class Customer
     {
         $this->user = $user;
     }
-    
+
     public function getDetails(): CustomerDetails
     {
         return $this->details;
@@ -49,5 +57,15 @@ class Customer
     public function setDetails(CustomerDetails $details): void
     {
         $this->details = $details;
+    }
+
+    public function getExternalIds(): array
+    {
+        return $this->externalIds;
+    }
+
+    public function setExternalIds(array $externalIds): void
+    {
+        $this->externalIds = $externalIds;
     }
 }

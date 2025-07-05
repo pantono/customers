@@ -1,0 +1,2 @@
+recreate_customer_flat:
+  class: Pantono\Customers\Events\UpdateCustomerFlat

@@ -14,6 +14,8 @@ use Pantono\Utilities\DateTimeParser;
 use Pantono\Customers\Model\CustomerField;
 use Pantono\Customers\Event\PreCustomerFieldSaveEvent;
 use Pantono\Customers\Event\PostCustomerFieldSaveEvent;
+use Pantono\Customers\Model\CustomerExternalId;
+use Pantono\Customers\Filter\CustomerFilter;
 
 class Customers
 {
@@ -36,6 +38,35 @@ class Customers
     public function getCustomerListById(int $id): ?CustomerList
     {
         return $this->hydrator->hydrate(CustomerList::class, $this->repository->getCustomerListById($id));
+    }
+
+    /**
+     * @return CustomerExternalId[]
+     */
+    public function getExternalIdsForCustomer(Customer $customer): array
+    {
+        return $this->hydrator->hydrateSet(CustomerExternalId::class, $this->repository->getExternalIdsForCustomer($customer));
+    }
+
+    /**
+     * @param CustomerFilter $filter
+     * @return Customer[]
+     */
+    public function getCustomersByFilter(CustomerFilter $filter): array
+    {
+        return $this->hydrator->hydrateSet(Customer::class, $this->repository->getCustomersByFilter($filter));
+    }
+
+    public function getCustomerByExternalIdentifier(string $identifierType, mixed $identifier): ?Customer
+    {
+        $filter = new CustomerFilter();
+        $filter->setExternalIdType($identifierType);
+        $filter->setExternalIdValue($identifier);
+        $filter->setPerPage(1);
+        $filter->setPage(1);
+
+        $customers = $this->getCustomersByFilter($filter);
+        return $customers[0];
     }
 
     public function saveCustomer(Customer $customer): void
@@ -124,5 +155,15 @@ class Customers
         $event->setPrevious($previous);
         $event->setCurrent($field);
         $this->dispatcher->dispatch($event);
+    }
+
+    public function recreateFlatTable(): void
+    {
+        $this->repository->recreateFlatTable();
+    }
+
+    public function updateCustomerFlat(Customer $customer): void
+    {
+        $this->repository->updateCustomerFlat($customer);
     }
 }
