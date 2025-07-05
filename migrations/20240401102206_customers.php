@@ -56,6 +56,8 @@ final class Customers extends AbstractMigration
             $this->table('customer')
                 ->addForeignKey('details_id', 'customer_details', 'id')
                 ->update();
+        } else {
+            $this->query('ALTER TABLE `pantono`.`customer` DROP FOREIGN KEY `customer_ibfk_2`;');
         }
 
         $this->table('customer_history')
