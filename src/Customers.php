@@ -99,22 +99,23 @@ class Customers
     }
 
 
-    public function updateCustomerFromParameters(Customer $customer, ParameterBag $parameters, bool $autoCreateFields = false): void
+    public function updateCustomerFromParameters(ParameterBag $parameters, bool $autoCreateFields = false): Customer
     {
-        if (!$customer->getId()) {
-            if ($parameters->has('email')) {
-                $customer = $this->getCustomerByEmail($parameters->get('email'));
-                if (!$customer) {
-                    $customer = new Customer();
-                    $customer->setDetails(new CustomerDetails());
-                }
+        $customer = null;
+        if ($parameters->has('email')) {
+            $customer = $this->getCustomerByEmail($parameters->get('email'));
+            if (!$customer) {
+                $customer = new Customer();
+                $customer->setDateCreated(new \DateTime);
+                $customer->setDetails(new CustomerDetails());
             }
         }
-        $details = $customer->getDetails();
-        if ($details === null) {
-            $details = new CustomerDetails();
-            $customer->setDetails($details);
+        if (!$customer) {
+            $customer = new Customer();
+            $customer->setDateCreated(new \DateTime);;
+            $customer->setDetails(new CustomerDetails());
         }
+        $details = $customer->getDetails();
         if ($parameters->get('email') !== null) {
             $details->setEmail($parameters->get('email'));
         }
@@ -146,6 +147,7 @@ class Customers
                 $details->updateFieldValue($fieldType, $value);
             }
         }
+        return $customer;
     }
 
     public function getFieldById(int $id): ?CustomerField
