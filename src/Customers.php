@@ -102,7 +102,14 @@ class Customers
     public function updateCustomerFromParameters(ParameterBag $parameters, bool $autoCreateFields = false): Customer
     {
         $customer = null;
-        if ($parameters->has('email')) {
+        if ($parameters->has('id')) {
+            $customer = $this->getCustomerById($parameters->get('id'));
+            if (!$customer) {
+                $customer = new Customer();
+                $customer->setDateCreated(new \DateTime);
+                $customer->setDetails(new CustomerDetails());
+            }
+        } elseif ($parameters->has('email')) {
             $customer = $this->getCustomerByEmail($parameters->get('email'));
             if (!$customer) {
                 $customer = new Customer();
