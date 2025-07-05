@@ -12,7 +12,7 @@ class Customer
     private ?int $id = null;
     private \DateTimeInterface $dateCreated;
     private ?User $user = null;
-    private CustomerDetails $details;
+    private ?CustomerDetails $details = null;
     /**
      * @var CustomerExternalId[]
      */
@@ -49,12 +49,12 @@ class Customer
         $this->user = $user;
     }
 
-    public function getDetails(): CustomerDetails
+    public function getDetails(): ?CustomerDetails
     {
         return $this->details;
     }
 
-    public function setDetails(CustomerDetails $details): void
+    public function setDetails(?CustomerDetails $details): void
     {
         $this->details = $details;
     }

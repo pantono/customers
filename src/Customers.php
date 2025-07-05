@@ -16,6 +16,7 @@ use Pantono\Customers\Event\PreCustomerFieldSaveEvent;
 use Pantono\Customers\Event\PostCustomerFieldSaveEvent;
 use Pantono\Customers\Model\CustomerExternalId;
 use Pantono\Customers\Filter\CustomerFilter;
+use Pantono\Customers\Model\CustomerDetails;
 
 class Customers
 {
@@ -92,9 +93,13 @@ class Customers
         $this->dispatcher->dispatch($event);
     }
 
+
     public function updateCustomerFromParameters(Customer $customer, ParameterBag $parameters, bool $autoCreateFields = false): void
     {
-        $details = $customer->getDetails();
+        if ($details = $customer->getDetails() === null) {
+            $details = new CustomerDetails();
+            $customer->setDetails($details);
+        }
         if ($parameters->get('email') !== null) {
             $details->setEmail($parameters->get('email'));
         }
