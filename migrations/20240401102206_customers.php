@@ -6,7 +6,7 @@ use Phinx\Migration\AbstractMigration;
 
 final class Customers extends AbstractMigration
 {
-    public function up(): void
+    public function change(): void
     {
         $this->table('customer')
             ->addColumn('details_id', 'integer', ['signed' => false, 'null' => true])
@@ -84,13 +84,6 @@ final class Customers extends AbstractMigration
             ->addIndex(['id_type', 'identifier', 'deleted'])
             ->create();
 
-        $view = <<<VIEW
-SELECT c.id, c.user_id, d.email, d.forename, d.surname, d.mobile_number, d.date_of_birth from customer c
-INNER JOIN customer_details d on c.details_id=d.id
-VIEW;
-
-        $this->query('CREATE view customer_list AS ' . $view);
-
         $this->table('customer_flat')
             ->addColumn('user_id', 'integer', ['null' => true])
             ->addColumn('email', 'string', ['null' => true])
@@ -102,30 +95,16 @@ VIEW;
             ->addIndex('forename')
             ->addIndex('surname')
             ->create();
-    }
 
-    public function down(): void
-    {
-        $this->table('customer_flat')
-            ->drop()->update();
-        $this->query('DROP view customer_list');
-        $this->table('customer_merge')
-            ->drop()->update();
-        $this->table('customer_history')
-            ->drop()->update();
-        $this->table('customer_locations')
-            ->drop()->update();
-        $this->table('customer')
-            ->dropForeignKey('details_id')
-            ->update();
-        $this->table('customer_details_field')
-            ->drop()->update();
-        $this->table('customer_field')
-            ->drop()->update();
-        $this->table('customer_details')
-            ->drop()->update();
-        $this->table('customer')
-            ->drop()->update();
+        if ($this->isMigratingUp()) {
+            $view = <<<VIEW
+SELECT c.id, c.user_id, d.email, d.forename, d.surname, d.mobile_number, d.date_of_birth from customer c
+INNER JOIN customer_details d on c.details_id=d.id
+VIEW;
 
+            $this->query('CREATE view customer_list AS ' . $view);
+        } else {
+            $this->query('DROP view customer_list');
+        }
     }
 }
