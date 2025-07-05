@@ -6,12 +6,16 @@ use Pantono\Authentication\Model\User;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Customers\Customers;
 use Pantono\Contracts\Attributes\FieldName;
+use Pantono\Authentication\UserAuthentication;
+use Pantono\Contracts\Attributes\Lazy;
 
 class Customer
 {
     private ?int $id = null;
     private \DateTimeInterface $dateCreated;
+    #[Locator(methodName: 'getUserById', className: UserAuthentication::class), FieldName('user_id'), Lazy]
     private ?User $user = null;
+    #[Locator(methodName: 'getDetailsById', className: Customers::class), FieldName('details_id')]
     private ?CustomerDetails $details = null;
     /**
      * @var CustomerExternalId[]

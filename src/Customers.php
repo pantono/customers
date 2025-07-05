@@ -54,6 +54,11 @@ class Customers
         return $this->hydrator->hydrateSet(CustomerExternalId::class, $this->repository->getExternalIdsForCustomer($customer));
     }
 
+    public function getDetailsById(int $id): ?CustomerDetails
+    {
+        return $this->hydrator->hydrate(CustomerDetails::class, $this->repository->getDetailsById($id));
+    }
+
     /**
      * @param CustomerFilter $filter
      * @return Customer[]
