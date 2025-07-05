@@ -89,7 +89,7 @@ class CustomersRepository extends MysqlRepository
         }
         $this->getDb()->insert('customer_details', [
             'customer_id' => $customer->getId(),
-            'date_created' => $customer->getDateCreated()->format('Y-m-d H:i:s'),
+            'date_created' => $details->getDateCreated()->format('Y-m-d H:i:s'),
             'email' => $details->getEmail(),
             'forename' => $details->getForename(),
             'surname' => $details->getSurname(),
