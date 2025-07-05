@@ -86,28 +86,17 @@ class CustomersRepository extends MysqlRepository
             ]);
             $customer->setId((int)$this->getDb()->lastInsertId());
             $details->setCustomerId($customer->getId());
-            $this->getDb()->insert('customer_details', [
-                'customer_id' => $customer->getId(),
-                'date_created' => $customer->getDateCreated()->format('Y-m-d H:i:s'),
-                'email' => $details->getEmail(),
-                'forename' => $details->getForename(),
-                'surname' => $details->getSurname(),
-                'mobile_number' => $details->getMobileNumber(),
-                'date_of_birth' => $details->getDateOfBirth()?->format('Y-m-d')
-            ]);
-            $customer->getDetails()->setId((int)$this->getDb()->lastInsertId());
-        } else {
-            $this->getDb()->insert('customer_details', [
-                'customer_id' => $customer->getId(),
-                'date_created' => $customer->getDateCreated()->format('Y-m-d H:i:s'),
-                'email' => $details->getEmail(),
-                'forename' => $details->getForename(),
-                'surname' => $details->getSurname(),
-                'mobile_number' => $details->getMobileNumber(),
-                'date_of_birth' => $details->getDateOfBirth()?->format('Y-m-d')
-            ]);
-            $customer->getDetails()->setId((int)$this->getDb()->lastInsertId());
         }
+        $this->getDb()->insert('customer_details', [
+            'customer_id' => $customer->getId(),
+            'date_created' => $customer->getDateCreated()->format('Y-m-d H:i:s'),
+            'email' => $details->getEmail(),
+            'forename' => $details->getForename(),
+            'surname' => $details->getSurname(),
+            'mobile_number' => $details->getMobileNumber(),
+            'date_of_birth' => $details->getDateOfBirth()?->format('Y-m-d')
+        ]);
+        $customer->getDetails()->setId((int)$this->getDb()->lastInsertId());
         $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $details->getCustomerId()], ['id' => $customer->getId()]);
         foreach ($customer->getDetails()->getFields() as $field) {
             $this->getDb()->insert('customer_field', [

@@ -99,13 +99,15 @@ class Customers
     }
 
 
-    public function updateCustomerFromParameters(?Customer $customer, ParameterBag $parameters, bool $autoCreateFields = false): void
+    public function updateCustomerFromParameters(Customer $customer, ParameterBag $parameters, bool $autoCreateFields = false): void
     {
-        if ($customer === null || !$customer->getId()) {
+        if (!$customer->getId()) {
             if ($parameters->has('email')) {
                 $customer = $this->getCustomerByEmail($parameters->get('email'));
                 if (!$customer) {
                     $customer = new Customer();
+                    $details = new CustomerDetails();
+                    $customer->setDetails($details);
                 }
             }
         }
