@@ -119,7 +119,7 @@ class Customer
 
         if ($this->getDetails()) {
             foreach ($this->getDetails()->getFields() as $field) {
-                $prevValue = $previous->getDetails()?->getFieldByName($field->getField()->getName());
+                $prevValue = $previous->getDetails()?->getFieldValue($field->getField()->getName());
                 if ($field->getValue() !== $prevValue) {
                     $updates[] = ['field' => $field->getField()->getName(), 'old' => $prevValue, 'new' => $field->getValue()];
                 }

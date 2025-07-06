@@ -143,6 +143,16 @@ class CustomerDetails
         return null;
     }
 
+    public function getFieldValue(string $fieldName): mixed
+    {
+        foreach ($this->fields as $field) {
+            if ($field->getField()->getName() === $fieldName) {
+                return $field->getValue();
+            }
+        }
+        return null;
+    }
+
     public function updateFieldValue(CustomerField $fieldModel, mixed $value): void
     {
         $found = false;
