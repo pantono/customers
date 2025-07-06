@@ -98,6 +98,9 @@ class Customer
                 $parts[$field] = $value;
             }
         }
+        foreach ($this->getExternalIds() as $externalId) {
+            $parts['external_id_' . $externalId->getIdType()] = $externalId->getIdentifier();
+        }
         $json = serialize($parts);
         return md5($json);
     }
