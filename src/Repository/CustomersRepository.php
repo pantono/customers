@@ -49,20 +49,20 @@ class CustomersRepository extends MysqlRepository
     public function getCustomerByFilterSelect(CustomerFilter $filter): Select
     {
         $select = $this->getDb()->select()->from('customer')
-            ->joinInner('customer_details', 'customer.details_id=customer_details.id', []);
+            ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', []);
         if ($filter->getSearch() !== null) {
-            $select->where('CONCAT(customer_details.forename, \' \', customer_details.surname, \' \', customer_details.emails, \' \', customer_details.mobile_number) like ?', '%' . $filter->getSearch() . '%');
+            $select->where('CONCAT(customer_detail.forename, \' \', customer_detail.surname, \' \', customer_detail.emails, \' \', customer_detail.mobile_number) like ?', '%' . $filter->getSearch() . '%');
         }
         if ($filter->getEmail() !== null) {
-            $select->where('customer_details.email like ?', '%' . $filter->getEmail() . '%');
+            $select->where('customer_detail.email like ?', '%' . $filter->getEmail() . '%');
         }
         if ($filter->getFields() !== null) {
             $index = 0;
             foreach ($filter->getFields() as $name => $field) {
-                $select->joinInner(['value_' . $index => 'customer_details_field'], 'customer_details.id=value_' . $index . '.details_id', [])
+                $select->joinInner(['value_' . $index => 'customer_detail_field'], 'customer_detail.id=value_' . $index . '.details_id', [])
                     ->joinInner(['field_' . $index => 'customer_field'], 'value_' . $index . '.field_id=field_' . $index . '.id', [])
                     ->where('customer_field.name=?', $name)
-                    ->where('customer_details_field.value=?', $field);
+                    ->where('customer_detail_field.value=?', $field);
                 $index++;
             }
         }
@@ -87,7 +87,7 @@ class CustomersRepository extends MysqlRepository
             $customer->setId((int)$this->getDb()->lastInsertId());
             $details->setCustomerId($customer->getId());
         }
-        $this->getDb()->insert('customer_details', [
+        $this->getDb()->insert('customer_detail', [
             'customer_id' => $customer->getId(),
             'date_created' => $details->getDateCreated()->format('Y-m-d H:i:s'),
             'email' => $details->getEmail(),
@@ -99,7 +99,7 @@ class CustomersRepository extends MysqlRepository
         $customer->getDetails()->setId((int)$this->getDb()->lastInsertId());
         $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $customer->getDetails()->getId()], ['id' => $customer->getId()]);
         foreach ($customer->getDetails()->getFields() as $field) {
-            $this->getDb()->insert('customer_field', [
+            $this->getDb()->insert('customer_detail_field', [
                 'field_id' => $field->getField()->getId(),
                 'value' => $field->getValue(),
                 'details_id' => $customer->getDetails()->getId()
@@ -179,12 +179,12 @@ class CustomersRepository extends MysqlRepository
     public function getCustomerFlatBaseSelect(): Select
     {
         $select = $this->getDb()->select()->from('customer', ['id'])
-            ->joinInner('customer_details', 'customer.details_id=customer_details.id', ['email', 'forename', 'surname', 'date_of_birth']);
+            ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', ['email', 'forename', 'surname', 'date_of_birth']);
 
         $index = 0;
         foreach ($this->getAllFields() as $fieldConfig) {
             $index++;
-            $select->joinLeft(['field_' . $index => 'customer_field'], 'customer_details.id=field_' . $index . '.details_id and field_' . $index . '.field_id=' . $fieldConfig['id'], [$fieldConfig['name'] => 'field_' . $index . '.value']);
+            $select->joinLeft(['field_' . $index => 'customer_field'], 'customer_detail.id=field_' . $index . '.details_id and field_' . $index . '.field_id=' . $fieldConfig['id'], [$fieldConfig['name'] => 'field_' . $index . '.value']);
         }
 
         return $select;
@@ -214,14 +214,14 @@ class CustomersRepository extends MysqlRepository
     public function getCustomerByEmail(string $email): ?array
     {
         $select = $this->getDb()->select()->from('customer')
-            ->joinInner('customer_details', 'customer.details_id=customer_details.id', [])
-            ->where('customer_details.email=?', $email);
+            ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', [])
+            ->where('customer_detail.email=?', $email);
 
         return $this->selectSingleRowFromQuery($select);
     }
 
     public function getDetailsById(int $id): ?array
     {
-        return $this->selectSingleRow('customer_details', 'id', $id);
+        return $this->selectSingleRow('customer_detail', 'id', $id);
     }
 }

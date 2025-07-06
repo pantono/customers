@@ -17,7 +17,7 @@ final class Customers extends AbstractMigration
             ->addIndex('user_id', ['unique' => true])
             ->create();
 
-        $this->table('customer_details')
+        $this->table('customer_detail')
             ->addColumn('customer_id', 'integer', ['signed' => false])
             ->addColumn('date_created', 'datetime')
             ->addColumn('email', 'string', ['null' => true])
@@ -36,11 +36,11 @@ final class Customers extends AbstractMigration
             ->addColumn('config', 'json', ['null' => true])
             ->create();
 
-        $this->table('customer_details_field')
+        $this->table('customer_detail_field')
             ->addColumn('details_id', 'integer', ['signed' => false])
             ->addColumn('field_id', 'integer', ['signed' => false])
             ->addColumn('value', 'string', ['null' => true])
-            ->addForeignKey('details_id', 'customer_details', 'id')
+            ->addForeignKey('details_id', 'customer_detail', 'id')
             ->addForeignKey('field_id', 'customer_field', 'id')
             ->create();
 
@@ -54,7 +54,7 @@ final class Customers extends AbstractMigration
 
         if ($this->isMigratingUp()) {
             $this->table('customer')
-                ->addForeignKey('details_id', 'customer_details', 'id')
+                ->addForeignKey('details_id', 'customer_detail', 'id')
                 ->update();
         } else {
             $this->query('ALTER TABLE `pantono`.`customer` DROP FOREIGN KEY `customer_ibfk_2`;');
@@ -104,7 +104,7 @@ final class Customers extends AbstractMigration
         if ($this->isMigratingUp()) {
             $view = <<<VIEW
 SELECT c.id, c.user_id, d.email, d.forename, d.surname, d.mobile_number, d.date_of_birth from customer c
-INNER JOIN customer_details d on c.details_id=d.id
+INNER JOIN customer_detail d on c.details_id=d.id
 VIEW;
 
             $this->query('CREATE view customer_list AS ' . $view);
