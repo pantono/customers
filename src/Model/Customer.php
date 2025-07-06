@@ -109,7 +109,7 @@ class Customer
         $prevData = $previous->getDetails()?->getAllData() ?? [];
         $currentData = $this->getDetails()?->getAllData() ?? [];
         foreach ($currentData as $field => $value) {
-            if ($field === 'id' || $field === 'date_created') {
+            if ($field === 'id' || $field === 'date_created' || $field === 'field_json') {
                 continue;
             }
             if ($value !== $prevData[$field]) {
