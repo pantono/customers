@@ -159,6 +159,9 @@ class CustomersRepository extends MysqlRepository
             if ($type === 'select') {
                 $type = 'varchar(255)';
             }
+            if ($type === 'string') {
+                $type = 'varchar(255)';
+            }
             if ($type === 'boolean') {
                 $type = 'tinyint(1)';
             }
