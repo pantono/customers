@@ -177,6 +177,7 @@ class Customer
             $externalId->setDateCreated(new \DateTime);
             $externalId->setDateUpdated(new \DateTime);
             $externalId->setIdentifier($identifier);
+            $this->externalIds[] = $externalId;
         }
     }
 
