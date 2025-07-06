@@ -7,6 +7,7 @@ use Pantono\Customers\Filter\CustomerFilter;
 use Pantono\Database\Query\Select\Select;
 use Pantono\Customers\Model\Customer;
 use Pantono\Customers\Model\CustomerField;
+use Pantono\Authentication\Model\User;
 
 class CustomersRepository extends MysqlRepository
 {
@@ -79,6 +80,9 @@ class CustomersRepository extends MysqlRepository
     public function saveCustomer(Customer $customer): void
     {
         $details = $customer->getDetails();
+        if (!$details) {
+            throw new \RuntimeException('No customer details set before saving');
+        }
         if ($customer->getId() === null) {
             $this->getDb()->insert('customer', [
                 'date_created' => $customer->getDateCreated()->format('Y-m-d H:i:s'),
@@ -88,13 +92,13 @@ class CustomersRepository extends MysqlRepository
             $details->setCustomerId($customer->getId());
         }
         $this->getDb()->insert('customer_detail', $details->getAllData());
-        $customer->getDetails()->setId((int)$this->getDb()->lastInsertId());
-        $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $customer->getDetails()->getId()], ['id=?' => $customer->getId()]);
-        foreach ($customer->getDetails()->getFields() as $field) {
+        $details->setId((int)$this->getDb()->lastInsertId());
+        $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $details->getId()], ['id=?' => $customer->getId()]);
+        foreach ($details->getFields() as $field) {
             $this->getDb()->insert('customer_detail_field', [
                 'field_id' => $field->getField()->getId(),
                 'value' => $field->getValue(),
-                'details_id' => $customer->getDetails()->getId()
+                'details_id' => $details->getId()
             ]);
         }
     }
@@ -191,6 +195,9 @@ class CustomersRepository extends MysqlRepository
     {
         $this->getDb()->delete('customer_flat', ['id=?' => $customer->getId()]);
 
+        if (!$customer->getDetails()) {
+            return;
+        }
 
         $fields = [
             'id' => $customer->getId(),
@@ -203,7 +210,9 @@ class CustomersRepository extends MysqlRepository
         ];
 
         foreach ($customer->getDetails()->getFields() as $field) {
-            $fields[$field->getField()->getName()] = $field->getValue();
+            if ($field->getField()) {
+                $fields[$field->getField()->getName()] = $field->getValue();
+            }
         }
         try {
             $this->getDb()->insert('customer_flat', $fields);
@@ -224,5 +233,15 @@ class CustomersRepository extends MysqlRepository
     public function getDetailsById(int $id): ?array
     {
         return $this->selectSingleRow('customer_detail', 'id', $id);
+    }
+
+    public function addHistoryToCustomer(Customer $customer, ?User $user, string $entry): void
+    {
+        $this->getDb()->insert('customer_history', [
+            'customer_id' => $customer->getId(),
+            'date_created' => (new \DateTime)->format('Y-m-d H:i:s'),
+            'user_id' => $user?->getId(),
+            'entry' => $entry,
+        ]);
     }
 }

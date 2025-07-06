@@ -17,6 +17,7 @@ use Pantono\Customers\Event\PostCustomerFieldSaveEvent;
 use Pantono\Customers\Model\CustomerExternalId;
 use Pantono\Customers\Filter\CustomerFilter;
 use Pantono\Customers\Model\CustomerDetails;
+use Pantono\Authentication\Model\User;
 
 class Customers
 {
@@ -132,6 +133,11 @@ class Customers
             $customer->setNeedsUpdate(true);
         }
         $details = $customer->getDetails();
+        if (!$details) {
+            $details = new CustomerDetails();
+            $details->setDateCreated(new \DateTime);
+            $customer->setDetails($details);
+        }
         if ($parameters->get('email') !== null) {
             $details->setEmail($parameters->get('email'));
         }
@@ -203,5 +209,10 @@ class Customers
     public function updateCustomerFlat(Customer $customer): void
     {
         $this->repository->updateCustomerFlat($customer);
+    }
+
+    public function addHistoryToCustomer(Customer $customer, ?User $user, string $entry): void
+    {
+        $this->repository->addHistoryToCustomer($customer, $user, $entry);
     }
 }

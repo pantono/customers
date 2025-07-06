@@ -91,9 +91,41 @@ class Customer
         $parts = [
             'user_id' => $this->getUser()?->getId(),
         ];
-        foreach ($this->getDetails()->getAllData() as $field => $value) {
-            $parts[$field] = $value;
+        if ($this->getDetails()) {
+            foreach ($this->getDetails()->getAllData() as $field => $value) {
+                $parts[$field] = $value;
+            }
         }
-        return md5(json_encode($parts));
+        $json = serialize($parts);
+        return md5($json);
+    }
+
+    public function getUpdates(Customer $previous): array
+    {
+        $updates = [];
+        if ($this->getUser()?->getId() !== $previous->getUser()?->getId()) {
+            $updates[] = ['field' => 'user_id', 'old' => $previous->getUser()?->getId(), 'new' => $this->getUser()?->getId()];
+        }
+        $prevData = $previous->getDetails()?->getAllData() ?? [];
+        $currentData = $this->getDetails()?->getAllData() ?? [];
+        foreach ($currentData as $field => $value) {
+            if ($field === 'id' || $field === 'date_created') {
+                continue;
+            }
+            if ($value !== $prevData[$field]) {
+                $updates[] = ['field' => $field, 'old' => $prevData[$field], 'new' => $value];
+            }
+        }
+
+        if ($this->getDetails()) {
+            foreach ($this->getDetails()->getFields() as $field) {
+                $prevValue = $previous->getDetails()?->getFieldByName($field->getField()->getName());
+                if ($field->getValue() !== $prevValue) {
+                    $updates[] = ['field' => $field->getField()->getName(), 'old' => $prevValue, 'new' => $field->getValue()];
+                }
+            }
+        }
+
+        return $updates;
     }
 }
