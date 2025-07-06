@@ -239,7 +239,7 @@ class CustomersRepository extends MysqlRepository
     {
         $this->getDb()->insert('customer_history', [
             'customer_id' => $customer->getId(),
-            'date_created' => (new \DateTime)->format('Y-m-d H:i:s'),
+            'date' => (new \DateTime)->format('Y-m-d H:i:s'),
             'user_id' => $user?->getId(),
             'entry' => $entry,
         ]);
