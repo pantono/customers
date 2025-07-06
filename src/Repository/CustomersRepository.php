@@ -89,7 +89,7 @@ class CustomersRepository extends MysqlRepository
         }
         $this->getDb()->insert('customer_detail', $details->getAllData());
         $customer->getDetails()->setId((int)$this->getDb()->lastInsertId());
-        $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $customer->getDetails()->getId()], ['id' => $customer->getId()]);
+        $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $customer->getDetails()->getId()], ['id=?' => $customer->getId()]);
         foreach ($customer->getDetails()->getFields() as $field) {
             $this->getDb()->insert('customer_detail_field', [
                 'field_id' => $field->getField()->getId(),
