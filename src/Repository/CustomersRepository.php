@@ -102,6 +102,13 @@ class CustomersRepository extends MysqlRepository
                 'details_id' => $details->getId()
             ]);
         }
+
+        foreach ($customer->getExternalIds() as $externalId) {
+            $externalIdId = $this->insertOrUpdate('customer_external_id', 'id', $externalId->getId(), $externalId->getAllData());
+            if ($externalIdId) {
+                $externalId->setId($externalIdId);
+            }
+        }
     }
 
     public function getFieldById(int $id): ?array

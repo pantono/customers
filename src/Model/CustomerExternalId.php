@@ -2,8 +2,12 @@
 
 namespace Pantono\Customers\Model;
 
+use Pantono\Database\Traits\SavableModel;
+
 class CustomerExternalId
 {
+    use SavableModel;
+
     private ?int $id = null;
     private string $idType;
     private \DateTimeInterface $dateCreated;

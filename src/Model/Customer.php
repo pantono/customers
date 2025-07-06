@@ -142,6 +142,48 @@ class Customer
             }
         }
 
+        foreach ($this->getExternalIds() as $externalId) {
+            $previousId = $previous->getExternalIdByType($externalId->getIdType());
+            if (!$previousId) {
+                $updates[] = ['field' => $externalId->getIdType() . '_external_id', 'old' => 'N/A', 'new' => $externalId->getIdentifier()];
+            } else {
+                if ($previousId->getIdentifier() !== $externalId->getIdentifier()) {
+                    $updates[] = ['field' => $externalId->getIdType() . '_external_id', 'old' => $previousId->getIdentifier(), 'new' => $externalId->getIdentifier()];
+                }
+            }
+        }
+
         return $updates;
+    }
+
+    public function updateExternalId(string $type, mixed $identifier): void
+    {
+        $found = false;
+        foreach ($this->getExternalIds() as $externalId) {
+            if ($externalId->getIdType() === $type) {
+                $found = true;
+                if ($externalId->getIdentifier() !== $identifier) {
+                    $externalId->setDateUpdated(new \DateTime);
+                    $externalId->setIdentifier($identifier);
+                }
+            }
+        }
+        if (!$found) {
+            $externalId = new CustomerExternalId();
+            $externalId->setIdType($type);
+            $externalId->setDateCreated(new \DateTime);
+            $externalId->setDateUpdated(new \DateTime);
+            $externalId->setIdentifier($identifier);
+        }
+    }
+
+    public function getExternalIdByType(string $type): ?CustomerExternalId
+    {
+        foreach ($this->getExternalIds() as $externalId) {
+            if ($externalId->getIdType() === $type) {
+                return $externalId;
+            }
+        }
+        return null;
     }
 }
