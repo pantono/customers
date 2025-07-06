@@ -4,12 +4,13 @@ namespace Pantono\Customers\Model;
 
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Contracts\Attributes\FieldName;
+use Pantono\Customers\Customers;
 
 class CustomerDetailField
 {
     private ?int $id = null;
     private int $detailsId;
-    #[Locator(methodName: 'getFieldById', className: CustomerDetail::class), FieldName('field_id')]
+    #[Locator(methodName: 'getFieldById', className: Customers::class), FieldName('field_id')]
     private ?CustomerField $field = null;
     private mixed $value;
 
