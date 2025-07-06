@@ -10,9 +10,11 @@ class CustomerExternalId
 
     private ?int $id = null;
     private string $idType;
+    private int $customerId;
     private \DateTimeInterface $dateCreated;
     private \DateTimeInterface $dateUpdated;
     private mixed $identifier;
+    private bool $deleted;
 
     public function getId(): ?int
     {
@@ -32,6 +34,16 @@ class CustomerExternalId
     public function setIdType(string $idType): void
     {
         $this->idType = $idType;
+    }
+
+    public function getCustomerId(): int
+    {
+        return $this->customerId;
+    }
+
+    public function setCustomerId(int $customerId): void
+    {
+        $this->customerId = $customerId;
     }
 
     public function getDateCreated(): \DateTimeInterface
@@ -62,5 +74,15 @@ class CustomerExternalId
     public function setIdentifier(mixed $identifier): void
     {
         $this->identifier = $identifier;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted(bool $deleted): void
+    {
+        $this->deleted = $deleted;
     }
 }
