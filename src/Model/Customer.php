@@ -165,7 +165,7 @@ class Customer
         foreach ($this->getExternalIds() as $externalId) {
             if ($externalId->getIdType() === $type) {
                 $found = true;
-                if ($externalId->getIdentifier() !== $identifier) {
+                if ($externalId->getIdentifier() !== $identifier && $externalId->isDeleted() === false) {
                     $externalId->setDateUpdated(new \DateTime);
                     $externalId->setIdentifier($identifier);
                 }
@@ -177,6 +177,7 @@ class Customer
             $externalId->setDateCreated(new \DateTime);
             $externalId->setDateUpdated(new \DateTime);
             $externalId->setIdentifier($identifier);
+            $externalId->setDeleted(false);
             $this->externalIds[] = $externalId;
         }
     }
