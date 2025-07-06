@@ -169,7 +169,7 @@ class CustomersRepository extends MysqlRepository
             $fieldSql[] = '`' . $fieldConfig['name'] . '` ' . $type . ' NULL';
         }
 
-        $this->getDb()->query('CREATE TABLE customer_flat (' . implode(',' . PHP_EOL, $fieldSql) . PHP_EOL . 'PRIMARY KEY (`id`)' . PHP_EOL . implode(',' . PHP_EOL, $indexes));
+        $this->getDb()->query('CREATE TABLE customer_flat (' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (`id`),' . PHP_EOL . implode(',' . PHP_EOL, $indexes));
 
         $select = $this->getCustomerFlatBaseSelect();
 
