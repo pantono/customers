@@ -101,8 +101,8 @@ class Customer
         foreach ($this->getExternalIds() as $externalId) {
             $parts['external_id_' . $externalId->getIdType()] = $externalId->getIdentifier();
         }
-        $json = serialize($parts);
-        return md5($json);
+        $string = serialize($parts);
+        return md5($string);
     }
 
     public function getUpdates(Customer $previous): array
