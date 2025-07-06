@@ -207,8 +207,11 @@ class CustomersRepository extends MysqlRepository
         foreach ($customer->getDetails()->getFields() as $field) {
             $fields[$field->getField()->getName()] = $field->getValue();
         }
+        try {
+            $this->getDb()->insert('customer_flat', $fields);
+        } catch (\PDOException $e) {
 
-        $this->getDb()->insert('customer_flat', $fields);
+        }
     }
 
     public function getCustomerByEmail(string $email): ?array
