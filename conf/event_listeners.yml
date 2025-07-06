@@ -2,3 +2,5 @@ recreate_customer_flat:
   class: Pantono\Customers\Events\UpdateCustomerFlat
 pre_customer_save_checks:
   class: Pantono\Customers\Events\PreCustomerSaveChecks
+customer_history_events:
+  class: Pantono\Customers\Events\CustomerHistoryEvents
