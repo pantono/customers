@@ -21,6 +21,7 @@ class PreCustomerSaveChecks implements EventSubscriberInterface
         if ($previous) {
             if ($previous->getHash() !== $current->getHash()) {
                 $current->setNeedsUpdate(true);
+                $current->getDetails()->setDateCreated(new \DateTime);
             }
         }
     }
