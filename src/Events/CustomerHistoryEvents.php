@@ -8,19 +8,19 @@ use Pantono\Customers\Event\PostCustomerSaveEvent;
 use Pantono\Contracts\Security\SecurityContextInterface;
 use Pantono\Customers\Model\Customer;
 use Pantono\Authentication\Model\User;
-use Pantono\Authentication\UserAuthentication;
+use Pantono\Authentication\Users;
 
 class CustomerHistoryEvents implements EventSubscriberInterface
 {
     private Customers $customers;
     private SecurityContextInterface $securityContext;
-    private UserAuthentication $userAuthentication;
+    private Users $users;
 
-    public function __construct(Customers $customers, SecurityContextInterface $securityContext, UserAuthentication $userAuthentication)
+    public function __construct(Customers $customers, SecurityContextInterface $securityContext, Users $users)
     {
         $this->customers = $customers;
         $this->securityContext = $securityContext;
-        $this->userAuthentication = $userAuthentication;
+        $this->users = $users;
     }
 
     public static function getSubscribedEvents(): array
@@ -58,7 +58,7 @@ class CustomerHistoryEvents implements EventSubscriberInterface
             /**
              * @var ?User $user
              */
-            $user = $this->userAuthentication->getUserById(1);
+            $user = $this->users->getUserById(1);
         }
         return $user;
     }
