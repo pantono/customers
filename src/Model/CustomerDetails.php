@@ -3,9 +3,12 @@
 namespace Pantono\Customers\Model;
 
 use Pantono\Contracts\Attributes\Filter;
+use Pantono\Database\Traits\SavableModel;
 
 class CustomerDetails
 {
+    use SavableModel;
+
     private ?int $id = null;
     private ?int $customerId = null;
     private ?\DateTimeInterface $dateCreated = null;
