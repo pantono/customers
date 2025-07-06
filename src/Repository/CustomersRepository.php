@@ -104,6 +104,7 @@ class CustomersRepository extends MysqlRepository
         }
 
         foreach ($customer->getExternalIds() as $externalId) {
+            $externalId->setCustomerId($customer->getId());
             $externalIdId = $this->insertOrUpdate('customer_external_id', 'id', $externalId->getId(), $externalId->getAllData());
             if ($externalIdId) {
                 $externalId->setId($externalIdId);
