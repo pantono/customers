@@ -2,11 +2,15 @@
 
 namespace Pantono\Customers\Model;
 
+use Pantono\Contracts\Attributes\Locator;
+use Pantono\Contracts\Attributes\FieldName;
+
 class CustomerDetailField
 {
     private ?int $id = null;
     private int $detailsId;
-    private CustomerField $field;
+    #[Locator(methodName: 'getFieldById', className: CustomerDetail::class), FieldName('field_id')]
+    private ?CustomerField $field = null;
     private mixed $value;
 
     public function getId(): ?int
@@ -29,12 +33,12 @@ class CustomerDetailField
         $this->detailsId = $detailsId;
     }
 
-    public function getField(): CustomerField
+    public function getField(): ?CustomerField
     {
         return $this->field;
     }
 
-    public function setField(CustomerField $field): void
+    public function setField(?CustomerField $field): void
     {
         $this->field = $field;
     }
