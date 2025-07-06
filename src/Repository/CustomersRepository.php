@@ -182,7 +182,7 @@ class CustomersRepository extends MysqlRepository
 
     public function getCustomerFlatBaseSelect(): Select
     {
-        $select = $this->getDb()->select()->from('customer', ['id'])
+        $select = $this->getDb()->select()->from('customer', ['id', 'user_id'])
             ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', ['email', 'forename', 'surname', 'date_of_birth']);
 
         $index = 0;
