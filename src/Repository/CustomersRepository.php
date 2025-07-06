@@ -188,7 +188,7 @@ class CustomersRepository extends MysqlRepository
         $index = 0;
         foreach ($this->getAllFields() as $fieldConfig) {
             $index++;
-            $select->joinLeft(['field_' . $index => 'customer_field'], 'customer_detail.id=field_' . $index . '.details_id and field_' . $index . '.field_id=' . $fieldConfig['id'], [$fieldConfig['name'] => 'field_' . $index . '.value']);
+            $select->joinLeft(['field_' . $index => 'customer_detail_field'], 'customer_detail.id=field_' . $index . '.details_id and field_' . $index . '.field_id=' . $fieldConfig['id'], ['field_' . $index . '.value AS ' . $fieldConfig['name']]);
         }
 
         return $select;
