@@ -154,6 +154,7 @@ class CustomerDetails
             $customerField = new CustomerDetailsField();
             $customerField->setField($fieldModel);
             $customerField->setValue($value);
+            $this->fields[] = $customerField;
         }
         $this->updateFieldJson();
     }
