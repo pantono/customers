@@ -92,7 +92,9 @@ class Customers
             $event->setPrevious($previous);
         }
         $this->dispatcher->dispatch($event);
-
+        if ($customer->isNeedsUpdate() === false) {
+            return;
+        }
         $this->repository->saveCustomer($customer);
 
         $event = new PostCustomerSaveEvent();
@@ -120,12 +122,14 @@ class Customers
                 $customer = new Customer();
                 $customer->setDateCreated(new \DateTime);
                 $customer->setDetails(new CustomerDetails());
+                $customer->setNeedsUpdate(true);
             }
         }
         if (!$customer) {
             $customer = new Customer();
             $customer->setDateCreated(new \DateTime);;
             $customer->setDetails(new CustomerDetails());
+            $customer->setNeedsUpdate(true);
         }
         $details = $customer->getDetails();
         if ($parameters->get('email') !== null) {

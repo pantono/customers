@@ -8,6 +8,7 @@ use Pantono\Customers\Customers;
 use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Authentication\UserAuthentication;
 use Pantono\Contracts\Attributes\Lazy;
+use Pantono\Contracts\Attributes\NoSave;
 
 class Customer
 {
@@ -22,6 +23,8 @@ class Customer
      */
     #[Locator(methodName: 'getExternalIdsForCustomer', className: Customers::class), FieldName('$this')]
     private array $externalIds = [];
+    #[NoSave]
+    private bool $needsUpdate = false;
 
     public function getId(): ?int
     {
@@ -71,5 +74,26 @@ class Customer
     public function setExternalIds(array $externalIds): void
     {
         $this->externalIds = $externalIds;
+    }
+
+    public function isNeedsUpdate(): bool
+    {
+        return $this->needsUpdate;
+    }
+
+    public function setNeedsUpdate(bool $needsUpdate): void
+    {
+        $this->needsUpdate = $needsUpdate;
+    }
+
+    public function getHash(): string
+    {
+        $parts = [
+            'user_id' => $this->getUser()?->getId(),
+        ];
+        foreach ($this->getDetails()->getAllData() as $field => $value) {
+            $parts[$field] = $value;
+        }
+        return md5(json_encode($parts));
     }
 }
