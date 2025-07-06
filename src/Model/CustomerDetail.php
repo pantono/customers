@@ -4,8 +4,10 @@ namespace Pantono\Customers\Model;
 
 use Pantono\Contracts\Attributes\Filter;
 use Pantono\Database\Traits\SavableModel;
+use Pantono\Contracts\Attributes\Locator;
+use Pantono\Customers\Customers;
 
-class CustomerDetails
+class CustomerDetail
 {
     use SavableModel;
 
@@ -20,6 +22,7 @@ class CustomerDetails
     /**
      * @var CustomerDetailsField[]
      */
+    #[Locator(methodName: 'getFieldsForCustomerDetails', className: Customers::class)]
     private array $fields = [];
     #[Filter('json_decode')]
     private array $fieldJson = [];

@@ -16,8 +16,9 @@ use Pantono\Customers\Event\PreCustomerFieldSaveEvent;
 use Pantono\Customers\Event\PostCustomerFieldSaveEvent;
 use Pantono\Customers\Model\CustomerExternalId;
 use Pantono\Customers\Filter\CustomerFilter;
-use Pantono\Customers\Model\CustomerDetails;
+use Pantono\Customers\Model\CustomerDetail;
 use Pantono\Authentication\Model\User;
+use Pantono\Customers\Model\CustomerDetailsField;
 
 class Customers
 {
@@ -55,9 +56,9 @@ class Customers
         return $this->hydrator->hydrateSet(CustomerExternalId::class, $this->repository->getExternalIdsForCustomer($customer));
     }
 
-    public function getDetailsById(int $id): ?CustomerDetails
+    public function getDetailsById(int $id): ?CustomerDetail
     {
-        return $this->hydrator->hydrate(CustomerDetails::class, $this->repository->getDetailsById($id));
+        return $this->hydrator->hydrate(CustomerDetail::class, $this->repository->getDetailsById($id));
     }
 
     /**
@@ -115,26 +116,26 @@ class Customers
             if (!$customer) {
                 $customer = new Customer();
                 $customer->setDateCreated(new \DateTime);
-                $customer->setDetails(new CustomerDetails());
+                $customer->setDetails(new CustomerDetail());
             }
         } elseif ($parameters->has('email')) {
             $customer = $this->getCustomerByEmail($parameters->get('email'));
             if (!$customer) {
                 $customer = new Customer();
                 $customer->setDateCreated(new \DateTime);
-                $customer->setDetails(new CustomerDetails());
+                $customer->setDetails(new CustomerDetail());
                 $customer->setNeedsUpdate(true);
             }
         }
         if (!$customer) {
             $customer = new Customer();
             $customer->setDateCreated(new \DateTime);;
-            $customer->setDetails(new CustomerDetails());
+            $customer->setDetails(new CustomerDetail());
             $customer->setNeedsUpdate(true);
         }
         $details = $customer->getDetails();
         if (!$details) {
-            $details = new CustomerDetails();
+            $details = new CustomerDetail();
             $details->setDateCreated(new \DateTime);
             $customer->setDetails($details);
         }
@@ -170,6 +171,14 @@ class Customers
             }
         }
         return $customer;
+    }
+
+    /**
+     * @return CustomerDetailsField[]
+     */
+    public function getFieldsForCustomerDetails(CustomerDetail $detail): array
+    {
+        return $this->hydrator->hydrateSet(CustomerDetailsField::class, $this->repository->getFieldsForCustomerDetail($detail));
     }
 
     public function getFieldById(int $id): ?CustomerField

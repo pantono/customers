@@ -3,11 +3,11 @@
 namespace Pantono\Customers\Decorator;
 
 use League\Fractal\TransformerAbstract;
-use Pantono\Customers\Model\CustomerDetails;
+use Pantono\Customers\Model\CustomerDetail;
 
 class CustomerDetailsDecorator extends TransformerAbstract
 {
-    public function transform(CustomerDetails $details): array
+    public function transform(CustomerDetail $details): array
     {
         $fields = [];
         foreach ($details->getFields() as $field) {

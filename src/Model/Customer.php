@@ -17,7 +17,7 @@ class Customer
     #[Locator(methodName: 'getUserById', className: UserAuthentication::class), FieldName('user_id'), Lazy]
     private ?User $user = null;
     #[Locator(methodName: 'getDetailsById', className: Customers::class), FieldName('details_id')]
-    private ?CustomerDetails $details = null;
+    private ?CustomerDetail $details = null;
     /**
      * @var CustomerExternalId[]
      */
@@ -56,12 +56,12 @@ class Customer
         $this->user = $user;
     }
 
-    public function getDetails(): ?CustomerDetails
+    public function getDetails(): ?CustomerDetail
     {
         return $this->details;
     }
 
-    public function setDetails(?CustomerDetails $details): void
+    public function setDetails(?CustomerDetail $details): void
     {
         $this->details = $details;
     }

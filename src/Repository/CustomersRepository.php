@@ -8,6 +8,7 @@ use Pantono\Database\Query\Select\Select;
 use Pantono\Customers\Model\Customer;
 use Pantono\Customers\Model\CustomerField;
 use Pantono\Authentication\Model\User;
+use Pantono\Customers\Model\CustomerDetail;
 
 class CustomersRepository extends MysqlRepository
 {
@@ -243,5 +244,10 @@ class CustomersRepository extends MysqlRepository
             'user_id' => $user?->getId(),
             'entry' => $entry,
         ]);
+    }
+
+    public function getFieldsForCustomerDetail(CustomerDetail $detail): array
+    {
+        return $this->selectRowsByValues('customer_detail_field', ['details_id' => $detail->getId()]);
     }
 }
