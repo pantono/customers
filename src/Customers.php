@@ -106,7 +106,7 @@ class Customers
     }
 
 
-    public function updateCustomerFromParameters(ParameterBag $parameters, bool $autoCreateFields = false): Customer
+    public function customerFromParameters(ParameterBag $parameters, bool $autoCreateFields = false): Customer
     {
         $customer = null;
         if ($parameters->has('id')) {
