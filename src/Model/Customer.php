@@ -174,6 +174,7 @@ class Customer
         if (!$found) {
             $externalId = new CustomerExternalId();
             $externalId->setIdType($type);
+            $externalId->setCustomerId($this->getId());
             $externalId->setDateCreated(new \DateTime);
             $externalId->setDateUpdated(new \DateTime);
             $externalId->setIdentifier($identifier);
