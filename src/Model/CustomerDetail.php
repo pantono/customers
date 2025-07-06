@@ -20,7 +20,7 @@ class CustomerDetail
     private ?string $mobileNumber = null;
     private ?\DateTimeInterface $dateOfBirth = null;
     /**
-     * @var CustomerDetailsField[]
+     * @var CustomerDetailField[]
      */
     #[Locator(methodName: 'getFieldsForCustomerDetails', className: Customers::class)]
     private array $fields = [];
@@ -131,16 +131,16 @@ class CustomerDetail
         $this->fields = $fields;
     }
 
-    public function addField(CustomerDetailsField $field): void
+    public function addField(CustomerDetailField $field): void
     {
         $this->fields[] = $field;
     }
 
-    public function getFieldByName(string $fieldName): ?CustomerField
+    public function getFieldByName(string $fieldName): ?CustomerDetailField
     {
         foreach ($this->fields as $field) {
             if ($field->getField()->getName() === $fieldName) {
-                return $field->getField();
+                return $field;
             }
         }
         return null;
@@ -167,7 +167,7 @@ class CustomerDetail
         }
 
         if ($found === false) {
-            $customerField = new CustomerDetailsField();
+            $customerField = new CustomerDetailField();
             $customerField->setField($fieldModel);
             $customerField->setValue($value);
             $this->fields[] = $customerField;

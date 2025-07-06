@@ -18,7 +18,7 @@ use Pantono\Customers\Model\CustomerExternalId;
 use Pantono\Customers\Filter\CustomerFilter;
 use Pantono\Customers\Model\CustomerDetail;
 use Pantono\Authentication\Model\User;
-use Pantono\Customers\Model\CustomerDetailsField;
+use Pantono\Customers\Model\CustomerDetailField;
 
 class Customers
 {
@@ -174,11 +174,11 @@ class Customers
     }
 
     /**
-     * @return CustomerDetailsField[]
+     * @return CustomerDetailField[]
      */
     public function getFieldsForCustomerDetails(CustomerDetail $detail): array
     {
-        return $this->hydrator->hydrateSet(CustomerDetailsField::class, $this->repository->getFieldsForCustomerDetail($detail));
+        return $this->hydrator->hydrateSet(CustomerDetailField::class, $this->repository->getFieldsForCustomerDetail($detail));
     }
 
     public function getFieldById(int $id): ?CustomerField

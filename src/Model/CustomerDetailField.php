@@ -2,7 +2,7 @@
 
 namespace Pantono\Customers\Model;
 
-class CustomerDetailsField
+class CustomerDetailField
 {
     private ?int $id = null;
     private int $detailsId;
