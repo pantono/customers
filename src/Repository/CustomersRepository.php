@@ -134,6 +134,7 @@ class CustomersRepository extends MysqlRepository
             'user_id' => ['type' => 'int', 'null' => true, 'index' => true],
             'email' => ['type' => 'varchar(255)', 'null' => false, 'index' => true],
             'forename' => ['type' => 'varchar(255)', 'null' => true, 'index' => true],
+            'surname' => ['type' => 'varchar(255)', 'null' => true, 'index' => true],
             'mobile_number' => ['type' => 'varchar(255)', 'null' => true, 'index' => true],
             'date_of_birth' => ['type' => 'date', 'null' => true, 'index' => false],
         ];
