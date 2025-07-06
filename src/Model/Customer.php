@@ -9,6 +9,8 @@ use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Authentication\UserAuthentication;
 use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Contracts\Attributes\NoSave;
+use Pantono\Core\Helper\ConfigHelper;
+use Pantono\Utilities\DateTimeParser;
 
 class Customer
 {
@@ -113,7 +115,17 @@ class Customer
                 continue;
             }
             if ($value !== $prevData[$field]) {
-                $updates[] = ['field' => $field, 'old' => $prevData[$field], 'new' => $value];
+                $oldValue = $prevData[$field] ?? null;
+                $newValue = $value ?? null;
+                if ($field === 'date_of_birth') {
+                    if ($oldValue) {
+                        $oldValue = DateTimeParser::parseDate($oldValue)->format(ConfigHelper::getDateFormat());
+                    }
+                    if ($newValue) {
+                        $newValue = DateTimeParser::parsedate($newValue)->format(ConfigHelper::getDateFormat());
+                    }
+                }
+                $updates[] = ['field' => $field, 'old' => $oldValue, 'new' => $newValue];
             }
         }
 
