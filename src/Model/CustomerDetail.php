@@ -7,6 +7,7 @@ use Pantono\Database\Traits\SavableModel;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Customers\Customers;
 use Pantono\Contracts\Attributes\FieldName;
+use Pantono\Contracts\Attributes\DateFormat;
 
 class CustomerDetail
 {
@@ -19,6 +20,7 @@ class CustomerDetail
     private ?string $forename = null;
     private ?string $surname = null;
     private ?string $mobileNumber = null;
+    #[DateFormat('Y-m-d')]
     private ?\DateTimeInterface $dateOfBirth = null;
     /**
      * @var CustomerDetailField[]
