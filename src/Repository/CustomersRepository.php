@@ -194,6 +194,7 @@ class CustomersRepository extends MysqlRepository
 
         $fields = [
             'id' => $customer->getId(),
+            'user_id' => $customer->getUser()?->getId(),
             'forename' => $customer->getDetails()->getForename(),
             'surname' => $customer->getDetails()->getSurname(),
             'email' => $customer->getDetails()->getEmail(),
