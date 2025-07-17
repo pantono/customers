@@ -5,6 +5,7 @@ namespace Pantono\Customers\Decorator;
 use League\Fractal\TransformerAbstract;
 use Pantono\Customers\Model\CustomerDetail;
 use Pantono\Core\Helper\ConfigHelper;
+use Pantono\Utilities\DateTimeParser;
 
 class CustomerDetailsDecorator extends TransformerAbstract
 {
@@ -16,7 +17,7 @@ class CustomerDetailsDecorator extends TransformerAbstract
         }
         return [
             'id' => $details->getId(),
-            'date_created' => $details->getDateCreated()->format(ConfigHelper::getDateTimeFormat()),
+            'date_created' => $details->getDateCreated()->format(DateTimeParser::DATE_TIME_FORMAT),
             'email' => $details->getEmail(),
             'forename' => $details->getForename(),
             'surname' => $details->getSurname(),
