@@ -127,22 +127,28 @@ class Customers
                 $customer->setNeedsUpdate(true);
             }
         }
-        if ($parameters->has('user_id')) {
-            if (!$customer->getUser()) {
-                $user = $this->hydrator->lookupRecord(User::class, $parameters->get('user_id'));
-                if ($user) {
-                    $current = $this->getCustomerByUserId($parameters->get('user_id'));
-                    if (!$current) {
-                        $customer->setUser($user);
-                    }
-                }
-            }
-        }
         if (!$customer) {
             $customer = new Customer();
             $customer->setDateCreated(new \DateTime);;
             $customer->setDetails(new CustomerDetail());
             $customer->setNeedsUpdate(true);
+        }
+        if ($parameters->has('user_id')) {
+            if (!$customer->getUser()) {
+                /**
+                 * @var User $user
+                 */
+                $user = $this->hydrator->lookupRecord(User::class, $parameters->get('user_id'));
+                if ($user) {
+                    if ($user->isSystemUser() === false) {
+                        $current = $this->getCustomerByUserId($parameters->get('user_id'));
+                        if (!$current) {
+                            $customer->setUser($user);
+                            $customer->setNeedsUpdate(true);
+                        }
+                    }
+                }
+            }
         }
         $details = $customer->getDetails();
         if (!$details) {
