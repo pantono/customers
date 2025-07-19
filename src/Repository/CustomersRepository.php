@@ -258,4 +258,9 @@ class CustomersRepository extends MysqlRepository
     {
         return $this->selectRowsByValues('customer_detail_field', ['details_id' => $detail->getId()]);
     }
+
+    public function getCustomerByUserId(int $id): ?array
+    {
+        return $this->selectSingleRow('customer', 'user_id', $id);
+    }
 }

@@ -127,6 +127,17 @@ class Customers
                 $customer->setNeedsUpdate(true);
             }
         }
+        if ($parameters->has('user_id')) {
+            if (!$customer->getUser()) {
+                $user = $this->hydrator->lookupRecord(User::class, $parameters->get('user_id'));
+                if ($user) {
+                    $current = $this->getCustomerByUserId($parameters->get('user_id'));
+                    if (!$current) {
+                        $customer->setUser($user);
+                    }
+                }
+            }
+        }
         if (!$customer) {
             $customer = new Customer();
             $customer->setDateCreated(new \DateTime);;
@@ -223,5 +234,10 @@ class Customers
     public function addHistoryToCustomer(Customer $customer, ?User $user, string $entry): void
     {
         $this->repository->addHistoryToCustomer($customer, $user, $entry);
+    }
+
+    public function getCustomerByUserId(int $id): ?Customer
+    {
+        return $this->hydrator->hydrate(Customer::class, $this->repository->getCustomerByUserId($id));
     }
 }
