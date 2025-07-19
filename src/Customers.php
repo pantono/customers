@@ -19,18 +19,21 @@ use Pantono\Customers\Filter\CustomerFilter;
 use Pantono\Customers\Model\CustomerDetail;
 use Pantono\Authentication\Model\User;
 use Pantono\Customers\Model\CustomerDetailField;
+use Pantono\Authentication\Users;
 
 class Customers
 {
     private CustomersRepository $repository;
     private Hydrator $hydrator;
     private EventDispatcher $dispatcher;
+    private Users $users;
 
-    public function __construct(CustomersRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher)
+    public function __construct(CustomersRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher, Users $users)
     {
         $this->repository = $repository;
         $this->hydrator = $hydrator;
         $this->dispatcher = $dispatcher;
+        $this->users = $users;
     }
 
     public function getCustomerById(int $id): ?Customer
@@ -135,10 +138,7 @@ class Customers
         }
         if ($parameters->has('user_id')) {
             if (!$customer->getUser()) {
-                /**
-                 * @var User $user
-                 */
-                $user = $this->hydrator->lookupRecord(User::class, $parameters->get('user_id'));
+                $user = $this->users->getUserById($parameters->get('user_id'));
                 if ($user) {
                     if ($user->isSystemUser() === false) {
                         $current = $this->getCustomerByUserId($parameters->get('user_id'));
@@ -186,6 +186,19 @@ class Customers
             if ($fieldType) {
                 $details->updateFieldValue($fieldType, $value);
             }
+        }
+
+        if ($parameters->has('create_user')) {
+            $userParams = [
+                'forename' => $customer->getDetails()->getForename(),
+                'surname' => $customer->getDetails()->getSurname(),
+                'email_address' => $customer->getDetails()->getEmail()
+            ];
+            if ($parameters->has('password')) {
+                $userParams['password'] = $parameters->get('password');
+            }
+            $user = $this->users->createUser($userParams);
+            $customer->setUser($user);
         }
         return $customer;
     }
