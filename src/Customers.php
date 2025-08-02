@@ -187,19 +187,6 @@ class Customers
                 $details->updateFieldValue($fieldType, $value);
             }
         }
-        $this->saveCustomer($customer);
-        if ($parameters->has('create_user')) {
-            $userParams = [
-                'forename' => $customer->getDetails()->getForename(),
-                'surname' => $customer->getDetails()->getSurname(),
-                'email_address' => $customer->getDetails()->getEmail()
-            ];
-            if ($parameters->has('password')) {
-                $userParams['password'] = $parameters->get('password');
-            }
-            $user = $this->users->createUser($userParams);
-            $customer->setUser($user);
-        }
         return $customer;
     }
 
