@@ -187,7 +187,7 @@ class Customers
                 $details->updateFieldValue($fieldType, $value);
             }
         }
-
+        $this->saveCustomer($customer);
         if ($parameters->has('create_user')) {
             $userParams = [
                 'forename' => $customer->getDetails()->getForename(),
