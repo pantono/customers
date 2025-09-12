@@ -69,6 +69,9 @@ class CompanyField
         if ($type === 'date' || $type === 'datetime') {
             return DateTimeParser::parseDate($value);
         }
+        if ($type === 'bool' || $type === 'boolean') {
+            return (bool)$value;
+        }
         return $value;
     }
 }
