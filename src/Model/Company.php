@@ -9,6 +9,7 @@ use Pantono\Locations\Model\Location;
 use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Contracts\Attributes\Lazy;
+use Pantono\Locations\Locations;
 
 #[Locator(methodName: 'getCompanyById', className: Companies::class)]
 class Company
@@ -18,11 +19,11 @@ class Company
     private ?int $id = null;
     private \DateTimeImmutable $dateCreated;
     private \DateTimeImmutable $dateUpdated;
-    #[FieldName('status_id')]
-    private CompanyStatus $status;
+    #[FieldName('status_id'), Locator(methodName: 'getCompanyStatusById', className: Companies::class)]
+    private ?CompanyStatus $status = null;
     private string $name;
-    #[FieldName('location_id')]
-    private Location $location;
+    #[FieldName('location_id'), Locator(methodName: 'getLocationById', className: Locations::class)]
+    private ?Location $location = null;
     private ?string $phoneNumber = null;
     private ?string $emailAddress = null;
     private ?string $vatNumber = null;
@@ -64,12 +65,12 @@ class Company
         $this->dateUpdated = $dateUpdated;
     }
 
-    public function getStatus(): CompanyStatus
+    public function getStatus(): ?CompanyStatus
     {
         return $this->status;
     }
 
-    public function setStatus(CompanyStatus $status): void
+    public function setStatus(?CompanyStatus $status): void
     {
         $this->status = $status;
     }
@@ -84,12 +85,12 @@ class Company
         $this->name = $name;
     }
 
-    public function getLocation(): Location
+    public function getLocation(): ?Location
     {
         return $this->location;
     }
 
-    public function setLocation(Location $location): void
+    public function setLocation(?Location $location): void
     {
         $this->location = $location;
     }
