@@ -16,6 +16,10 @@ class CompanyFilter implements PageableInterface
     private ?\DateTimeInterface $dateCreatedEnd = null;
     private ?\DateTimeInterface $dateUpdatedStart = null;
     private ?\DateTimeInterface $dateUpdatedEnd = null;
+    /**
+     * @var array<string,mixed>
+     */
+    private ?array $fields = null;
 
     public function getStatus(): ?CompanyStatus
     {
@@ -75,5 +79,18 @@ class CompanyFilter implements PageableInterface
     public function setDateUpdatedEnd(?\DateTimeInterface $dateUpdatedEnd): void
     {
         $this->dateUpdatedEnd = $dateUpdatedEnd;
+    }
+
+    public function addField(string $name, mixed $value): void
+    {
+        if ($this->fields === null) {
+            $this->fields = [];
+        }
+        $this->fields[$name] = $value;
+    }
+
+    public function getFields(): ?array
+    {
+        return $this->fields;
     }
 }

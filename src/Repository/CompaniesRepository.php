@@ -77,6 +77,15 @@ class CompaniesRepository extends MysqlRepository
         if ($filter->getDateUpdatedEnd() !== null) {
             $select->where('date_updated <= ?', $filter->getDateUpdatedEnd()->format('Y-m-d H:i:s'));
         }
+        if ($filter->getFields() !== null) {
+            $index = 0;
+            foreach ($filter->getFields() as $name => $value) {
+                $select->joinInner(['value_' . $index => 'company_field'], 'company.id=value_' . $index . '.company_id', [])
+                    ->joinInner(['field_' . $index => 'company_field_type'], 'value_' . $index . '.field_type_id=field_' . $index . '.id', [])
+                    ->where('customer_field.name=?', $name)
+                    ->where('customer_detail_field.value=?', $value);
+            }
+        }
         $filter->setTotalResults($this->getCount($select));
         $select->limitPage($filter->getPage(), $filter->getPerPage());
         return $this->getDb()->fetchAll($select);
