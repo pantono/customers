@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
 
-final class Customers extends AbstractMigration
+final class CustomersMigration extends AbstractMigration
 {
     public function change(): void
     {
