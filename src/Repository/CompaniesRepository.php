@@ -32,6 +32,7 @@ class CompaniesRepository extends MysqlRepository
         $params = ['company_id=?' => $company->getId()];
         $ids = [];
         foreach ($company->getFields() as $field) {
+            $field->setCompanyId($company->getId());
             $id = $this->insertOrUpdateCheck('company_field', 'id', $field->getId(), $field->getAllData());
             if ($id) {
                 $field->setId($id);
