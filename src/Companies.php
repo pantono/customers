@@ -41,7 +41,7 @@ class Companies
         $data = $this->cache->get('company_status_' . $id, function () use ($id) {
             return $this->repository->getCompanyStatusById($id);
         });
-        return $this->hydrator->hydrate(CompanyStatus::class, $data);
+        return $this->hydrator->hydrate(CompanyStatus::class, $data->get());
     }
 
     /**
@@ -65,7 +65,7 @@ class Companies
         $data = $this->cache->get('company_field_type_id_' . $id, function () use ($id) {
             return $this->repository->getFieldTypeById($id);
         });
-        return $this->hydrator->hydrate(CompanyFieldType::class, $data);
+        return $this->hydrator->hydrate(CompanyFieldType::class, $data->get());
     }
 
     public function getFieldTypeByName(string $name): ?CompanyFieldType
@@ -73,7 +73,7 @@ class Companies
         $data = $this->cache->get('company_field_type_name_' . $name, function () use ($name) {
             return $this->repository->getFieldTypeByName($name);
         });
-        return $this->hydrator->hydrate(CompanyFieldType::class, $data);
+        return $this->hydrator->hydrate(CompanyFieldType::class, $data->get());
     }
 
     /**
