@@ -7,9 +7,12 @@ use Pantono\Customers\Companies;
 use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Utilities\DateTimeParser;
+use Pantono\Database\Traits\SavableModel;
 
 class CompanyField
 {
+    use SavableModel;
+
     private ?int $id = null;
     private int $companyId;
     #[Locator(methodName: 'getFieldTypeById', className: Companies::class), FieldName('field_type_id'), Lazy]

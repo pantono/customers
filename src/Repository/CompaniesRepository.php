@@ -28,6 +28,20 @@ class CompaniesRepository extends MysqlRepository
         foreach ($company->getFiles() as $file) {
             $this->getDb()->insert('company_file', ['company_id' => $company->getId(), 'file_id' => $file->getId()]);
         }
+
+        $params = ['company_id=?' => $company->getId()];
+        $ids = [];
+        foreach ($company->getFields() as $field) {
+            $id = $this->insertOrUpdateCheck('company_field', 'id', $field->getId(), $field->getAllData());
+            if ($id) {
+                $field->setId($id);
+            }
+            $ids[] = $id;
+        }
+        if (!empty($ids)) {
+            $params['id NOT IN (?)'] = $ids;
+        }
+        $this->getDb()->delete('company_field', $params);
     }
 
     public function getFilesForCompany(int $companyId): array
