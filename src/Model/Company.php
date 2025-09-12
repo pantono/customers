@@ -153,4 +153,23 @@ class Company
         }
         return null;
     }
+
+    public function setField(CompanyFieldType $type, mixed $value): void
+    {
+        $found = false;
+        foreach ($this->getFields() as $field) {
+            if ($field->getType()->getId() === $type->getId()) {
+                $found = true;
+                $field->setValue($value);
+            }
+        }
+        if ($found === true) {
+            return;
+        }
+        $field = new CompanyField();
+        $field->setValue($value);
+        $field->setType($type);
+        $field->setCompanyId($this->getId());
+        $this->fields[] = $field;
+    }
 }
