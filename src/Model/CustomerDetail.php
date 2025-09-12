@@ -142,7 +142,7 @@ class CustomerDetail
     public function getFieldByName(string $fieldName): ?CustomerDetailField
     {
         foreach ($this->fields as $field) {
-            if ($field->getField()->getName() === $fieldName) {
+            if ($field->getField()?->getName() === $fieldName) {
                 return $field;
             }
         }
@@ -152,7 +152,7 @@ class CustomerDetail
     public function getFieldValue(string $fieldName): mixed
     {
         foreach ($this->fields as $field) {
-            if ($field->getField()->getName() === $fieldName) {
+            if ($field->getField()?->getName() === $fieldName) {
                 return $field->getValue();
             }
         }

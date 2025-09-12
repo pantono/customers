@@ -122,10 +122,10 @@ class Customer
                 $newValue = $value ?? null;
                 if ($field === 'date_of_birth') {
                     if ($oldValue) {
-                        $oldValue = DateTimeParser::parseDate($oldValue)->format(ConfigHelper::getDateFormat());
+                        $oldValue = DateTimeParser::parseDate($oldValue)?->format(ConfigHelper::getDateFormat());
                     }
                     if ($newValue) {
-                        $newValue = DateTimeParser::parsedate($newValue)->format(ConfigHelper::getDateFormat());
+                        $newValue = DateTimeParser::parsedate($newValue)?->format(ConfigHelper::getDateFormat());
                     }
                 }
                 $updates[] = ['field' => $field, 'old' => $oldValue, 'new' => $newValue];

@@ -39,12 +39,12 @@ class CompanyField
         $this->companyId = $companyId;
     }
 
-    public function getType(): CompanyFieldType
+    public function getType(): ?CompanyFieldType
     {
         return $this->type;
     }
 
-    public function setType(CompanyFieldType $type): void
+    public function setType(?CompanyFieldType $type): void
     {
         $this->type = $type;
     }
@@ -61,7 +61,7 @@ class CompanyField
 
     public function getCastedValue(): mixed
     {
-        $type = $this->getType()->getType();
+        $type = $this->getType()?->getType();
         $value = $this->getValue();
         if ($type === 'int') {
             return (int)$value;
