@@ -32,7 +32,7 @@ class Company
     /**
      * @var CompanyField[]
      */
-    #[Locator(methodName: 'getFieldsForCompany', className: Companies::class), NoSave, FieldName('company_id'), Lazy]
+    #[FieldName('id'), Locator(methodName: 'getFieldsForCompany', className: Companies::class), NoSave, Lazy]
     private array $fields = [];
 
     public function getId(): ?int
