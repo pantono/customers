@@ -43,5 +43,18 @@ final class Companies extends AbstractMigration
             ->addForeignKey('file_id', 'stored_file', 'id')
             ->addForeignKey('company_id', 'company', 'id')
             ->create();
+
+        $this->table('company_field_type')
+            ->addColumn('name', 'string')
+            ->addColumn('label', 'string')
+            ->addColumn('type', 'string')
+            ->addColumn('required', 'boolean')
+            ->create();
+
+        $this->table('company_field')
+            ->addColumn('company_id', 'integer', ['signed' => false])
+            ->addColumn('field_type_id', 'integer', ['signed' => false])
+            ->addColumn('value', 'text')
+            ->create();
     }
 }

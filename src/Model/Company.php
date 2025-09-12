@@ -8,6 +8,7 @@ use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Locations\Model\Location;
 use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Database\Traits\SavableModel;
+use Pantono\Contracts\Attributes\Lazy;
 
 #[Locator(methodName: 'getCompanyById', className: Companies::class)]
 class Company
@@ -27,6 +28,11 @@ class Company
     private ?string $vatNumber = null;
     #[Locator(methodName: 'getFilesForCompany', className: Companies::class), NoSave, FieldName('company_id')]
     private array $files = [];
+    /**
+     * @var CompanyField[]
+     */
+    #[Locator(methodName: 'getFieldsForCompany', className: Companies::class), NoSave, FieldName('company_id'), Lazy]
+    private array $fields = [];
 
     public function getId(): ?int
     {
@@ -126,5 +132,25 @@ class Company
     public function setFiles(array $files): void
     {
         $this->files = $files;
+    }
+
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
+
+    public function setFields(array $fields): void
+    {
+        $this->fields = $fields;
+    }
+
+    public function getFieldValueByName(string $name): mixed
+    {
+        foreach ($this->getFields() as $field) {
+            if ($field->getType()->getName() === $name) {
+                return $field->getCastedValue();
+            }
+        }
+        return null;
     }
 }

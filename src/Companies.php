@@ -11,18 +11,24 @@ use Pantono\Customers\Event\PreCompanySaveEvent;
 use Pantono\Customers\Event\PostCompanySaveEvent;
 use Pantono\Storage\Model\StoredFile;
 use Pantono\Customers\Filter\CompanyFilter;
+use Pantono\Customers\Model\CompanyField;
+use Pantono\Customers\Model\CompanyFieldType;
+use Pantono\Utilities\CacheHelper;
+use Pantono\Contracts\Application\Cache\ApplicationCacheInterface;
 
 class Companies
 {
     private CompaniesRepository $repository;
     private Hydrator $hydrator;
     private EventDispatcher $dispatcher;
+    private ApplicationCacheInterface $cache;
 
-    public function __construct(CompaniesRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher)
+    public function __construct(CompaniesRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher, ApplicationCacheInterface $cache)
     {
         $this->repository = $repository;
         $this->hydrator = $hydrator;
         $this->dispatcher = $dispatcher;
+        $this->cache = $cache;
     }
 
     public function getCompanyById(int $id): ?Company
@@ -32,7 +38,10 @@ class Companies
 
     public function getCompanyStatusById(int $id): ?CompanyStatus
     {
-        return $this->hydrator->hydrate(CompanyStatus::class, $this->repository->getCompanyStatusById($id));
+        $data = $this->cache->get('company_status_' . $id, function () use ($id) {
+            return $this->repository->getCompanyStatusById($id);
+        });
+        return $this->hydrator->hydrate(CompanyStatus::class, $data);
     }
 
     /**
@@ -41,6 +50,22 @@ class Companies
     public function getFilesForCompany(int $companyId): array
     {
         return $this->hydrator->hydrateSet(StoredFile::class, $this->repository->getFilesForCompany($companyId));
+    }
+
+    /**
+     * @return CompanyField[]
+     */
+    public function getFieldsForCompany(int $companyId): array
+    {
+        return $this->hydrator->hydrateSet(CompanyField::class, $this->repository->getFieldsForCompany($companyId));
+    }
+
+    public function getFieldTypeById(int $id): ?CompanyFieldType
+    {
+        $data = $this->cache->get('company_field_type_' . $id, function () use ($id) {
+            return $this->repository->getFieldTypeById($id);
+        });
+        return $this->hydrator->hydrate(CompanyFieldType::class, $data);
     }
 
     /**

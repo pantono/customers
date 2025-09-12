@@ -66,4 +66,14 @@ class CompaniesRepository extends MysqlRepository
         $select->limitPage($filter->getPage(), $filter->getPerPage());
         return $this->getDb()->fetchAll($select);
     }
+
+    public function getFieldTypeById(int $id): ?array
+    {
+        return $this->selectSingleRow('company_field_type', 'id', $id);
+    }
+
+    public function getFieldsForCompany(int $companyId): array
+    {
+        return $this->selectRowsByValues('company_field', ['company_id' => $companyId]);
+    }
 }
