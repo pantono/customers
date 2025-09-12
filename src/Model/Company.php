@@ -145,6 +145,15 @@ class Company
         $this->fields = $fields;
     }
 
+    public function getFieldValues(): array
+    {
+        $fields = [];
+        foreach ($this->getFields() as $field) {
+            $fields[$field->getType()->getName()] = $field->getCastedValue();
+        }
+        return $fields;
+    }
+
     public function getFieldValueByName(string $name): mixed
     {
         foreach ($this->getFields() as $field) {
