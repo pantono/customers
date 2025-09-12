@@ -169,7 +169,9 @@ class Company
         $field = new CompanyField();
         $field->setValue($value);
         $field->setType($type);
-        $field->setCompanyId($this->getId());
+        if ($this->getId()) {
+            $field->setCompanyId($this->getId());
+        }
         $this->fields[] = $field;
     }
 }
