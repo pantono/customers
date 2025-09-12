@@ -62,8 +62,16 @@ class Companies
 
     public function getFieldTypeById(int $id): ?CompanyFieldType
     {
-        $data = $this->cache->get('company_field_type_' . $id, function () use ($id) {
+        $data = $this->cache->get('company_field_type_id_' . $id, function () use ($id) {
             return $this->repository->getFieldTypeById($id);
+        });
+        return $this->hydrator->hydrate(CompanyFieldType::class, $data);
+    }
+
+    public function getFieldTypeByName(string $name): ?CompanyFieldType
+    {
+        $data = $this->cache->get('company_field_type_name_' . $name, function () use ($name) {
+            return $this->repository->getFieldTypeByName($name);
         });
         return $this->hydrator->hydrate(CompanyFieldType::class, $data);
     }

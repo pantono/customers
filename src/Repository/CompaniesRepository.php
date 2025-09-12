@@ -86,6 +86,11 @@ class CompaniesRepository extends MysqlRepository
         return $this->selectSingleRow('company_field_type', 'id', $id);
     }
 
+    public function getFieldTypeByName(string $name): ?array
+    {
+        return $this->selectSingleRow('company_field_type', 'name', $name);
+    }
+
     public function getFieldsForCompany(int $companyId): array
     {
         return $this->selectRowsByValues('company_field', ['company_id' => $companyId]);
