@@ -27,7 +27,7 @@ class Company
     private ?string $phoneNumber = null;
     private ?string $emailAddress = null;
     private ?string $vatNumber = null;
-    #[Locator(methodName: 'getFilesForCompany', className: Companies::class), NoSave, FieldName('company_id')]
+    #[FieldName('id'), Locator(methodName: 'getFilesForCompany', className: Companies::class), NoSave]
     private array $files = [];
     /**
      * @var CompanyField[]
