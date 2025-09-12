@@ -16,7 +16,7 @@ class CompanyField
     private ?int $id = null;
     private int $companyId;
     #[Locator(methodName: 'getFieldTypeById', className: Companies::class), FieldName('field_type_id'), Lazy]
-    private CompanyFieldType $type;
+    private ?CompanyFieldType $type = null;
     private string $value;
 
     public function getId(): ?int
