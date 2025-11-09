@@ -10,6 +10,7 @@ use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Locations\Locations;
+use Pantono\Storage\Model\StoredFile;
 
 #[Locator(methodName: 'getCompanyById', className: Companies::class)]
 class Company
@@ -27,6 +28,9 @@ class Company
     private ?string $phoneNumber = null;
     private ?string $emailAddress = null;
     private ?string $vatNumber = null;
+    /**
+     * @var StoredFile[]
+     */
     #[FieldName('id'), Locator(methodName: 'getFilesForCompany', className: Companies::class), NoSave]
     private array $files = [];
     /**
