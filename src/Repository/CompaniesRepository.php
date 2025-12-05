@@ -63,7 +63,7 @@ class CompaniesRepository extends MysqlRepository
         }
         if ($filter->getSearch() !== null) {
             $select->where('(name like ?', '%' . $filter->getSearch() . '%')
-                ->orWhere('email like ?)', '%' . $filter->getSearch() . '%');
+                ->orWhere('email_address like ?)', '%' . $filter->getSearch() . '%');
         }
         if ($filter->getDateCreatedStart() !== null) {
             $select->where('date_created >= ?', $filter->getDateCreatedStart()->format('Y-m-d H:i:s'));
