@@ -20,14 +20,12 @@ class Companies
     private CompaniesRepository $repository;
     private Hydrator $hydrator;
     private EventDispatcher $dispatcher;
-    private ApplicationCacheInterface $cache;
 
-    public function __construct(CompaniesRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher, ApplicationCacheInterface $cache)
+    public function __construct(CompaniesRepository $repository, Hydrator $hydrator, EventDispatcher $dispatcher)
     {
         $this->repository = $repository;
         $this->hydrator = $hydrator;
         $this->dispatcher = $dispatcher;
-        $this->cache = $cache;
     }
 
     public function getCompanyById(int $id): ?Company
@@ -45,10 +43,9 @@ class Companies
 
     public function getCompanyStatusById(int $id): ?CompanyStatus
     {
-        $data = $this->cache->getCallback('company_status_' . $id, function () use ($id) {
+        return $this->hydrator->hydrateCached('company_status_' . $id, CompanyStatus::class, function () use ($id) {
             return $this->repository->getCompanyStatusById($id);
         });
-        return $this->hydrator->hydrate(CompanyStatus::class, $data);
     }
 
     /**
@@ -69,18 +66,16 @@ class Companies
 
     public function getFieldTypeById(int $id): ?CompanyFieldType
     {
-        $data = $this->cache->getCallback('company_field_type_id_' . $id, function () use ($id) {
+        return $this->hydrator->hydrateCached('company_field_type_id_' . $id, CompanyFieldType::class, function () use ($id) {
             return $this->repository->getFieldTypeById($id);
         });
-        return $this->hydrator->hydrate(CompanyFieldType::class, $data);
     }
 
     public function getFieldTypeByName(string $name): ?CompanyFieldType
     {
-        $data = $this->cache->getCallback('company_field_type_name_' . $name, function () use ($name) {
+        return $this->hydrator->hydrateCached('company_field_type_name_' . $name, CompanyFieldType::class, function () use ($name) {
             return $this->repository->getFieldTypeByName($name);
         });
-        return $this->hydrator->hydrate(CompanyFieldType::class, $data);
     }
 
     /**
