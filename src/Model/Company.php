@@ -23,7 +23,7 @@ class Company
     #[FieldName('status_id'), Locator(methodName: 'getCompanyStatusById', className: Companies::class)]
     private ?CompanyStatus $status = null;
     private string $name;
-    #[FieldName('location_id'), Locator(methodName: 'getLocationById', className: Locations::class)]
+    #[FieldName('location_id'), Locator(methodName: 'getLocationById', className: Locations::class), Lazy]
     private ?Location $location = null;
     private ?string $phoneNumber = null;
     private ?string $emailAddress = null;
@@ -31,7 +31,7 @@ class Company
     /**
      * @var StoredFile[]
      */
-    #[FieldName('id'), Locator(methodName: 'getFilesForCompany', className: Companies::class), NoSave]
+    #[FieldName('id'), Locator(methodName: 'getFilesForCompany', className: Companies::class), NoSave, Lazy]
     private array $files = [];
     /**
      * @var CompanyField[]
