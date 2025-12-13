@@ -18,6 +18,11 @@ class CompaniesRepository extends MysqlRepository
         return $this->selectSingleRow('company_status', 'id', $id);
     }
 
+    public function getAllCompanyStatuses(): ?array
+    {
+        return $this->selectAll('company_status', 'name');
+    }
+
     public function saveCompany(Company $company): void
     {
         $id = $this->insertOrUpdateCheck('company', 'id', $company->getId(), $company->getAllData());

@@ -35,6 +35,14 @@ class Companies
         return $this->hydrator->hydrate(Company::class, $this->repository->getCompanyById($id));
     }
 
+    /**
+     * @return CompanyStatus[]
+     */
+    public function getAllCompanyStatuses(): array
+    {
+        return $this->hydrator->hydrateSet(CompanyStatus::class, $this->repository->getAllCompanyStatuses());
+    }
+
     public function getCompanyStatusById(int $id): ?CompanyStatus
     {
         $data = $this->cache->getCallback('company_status_' . $id, function () use ($id) {
