@@ -170,6 +170,10 @@ class Company
 
     public function setField(CompanyFieldType $type, mixed $value): void
     {
+        if ($value === null) {
+            $this->removeField($type);
+            return;
+        }
         $found = false;
         foreach ($this->getFields() as $field) {
             if ($field->getType()->getId() === $type->getId()) {
@@ -187,5 +191,16 @@ class Company
             $field->setCompanyId($this->getId());
         }
         $this->fields[] = $field;
+    }
+
+    public function removeField(CompanyFieldType $type): void
+    {
+        $fields = $this->getFields();
+        foreach ($fields as $key => $field) {
+            if ($field->getType()->getId() === $type->getId()) {
+                unset($fields[$key]);
+            }
+        }
+        $this->fields = $fields;
     }
 }
