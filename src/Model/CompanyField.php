@@ -9,6 +9,7 @@ use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Utilities\DateTimeParser;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Hydrator\Locator\StaticLocator;
+use Pantono\Storage\Model\StoredFile;
 
 class CompanyField
 {
@@ -75,6 +76,9 @@ class CompanyField
         }
         if ($type === 'bool' || $type === 'boolean') {
             return (bool)$value;
+        }
+        if ($type === 'file') {
+            return StaticLocator::getLocator()->lookupRecord(StoredFile::class, $value);
         }
         if (str_starts_with($type, 'lookup:')) {
             return StaticLocator::getLocator()->lookupRecord(substr($type, 7), $value);
