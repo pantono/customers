@@ -8,17 +8,19 @@ final class CustomersMigration extends AbstractMigration
 {
     public function change(): void
     {
-        $this->query('SET FOREIGN_KEY_CHECKS=0');
+        if ($this->getAdapter()->getAdapterType() === 'mysql') {
+            $this->query('SET FOREIGN_KEY_CHECKS=0');
+        }
         $this->table('customer')
-            ->addColumn('details_id', 'integer', ['signed' => false, 'null' => true])
-            ->addColumn('user_id', 'integer', ['signed' => false, 'null' => true])
+            ->addColumn('details_id', 'integer', ['null' => true])
+            ->addColumn('user_id', 'integer', ['null' => true])
             ->addColumn('date_created', 'datetime')
             ->addForeignKey('user_id', 'user', 'id')
             ->addIndex('user_id', ['unique' => true])
             ->create();
 
         $this->table('customer_detail')
-            ->addColumn('customer_id', 'integer', ['signed' => false])
+            ->addColumn('customer_id', 'integer')
             ->addColumn('date_created', 'datetime')
             ->addColumn('email', 'string', ['null' => true])
             ->addColumn('forename', 'string', ['null' => true])
@@ -37,16 +39,16 @@ final class CustomersMigration extends AbstractMigration
             ->create();
 
         $this->table('customer_detail_field')
-            ->addColumn('details_id', 'integer', ['signed' => false])
-            ->addColumn('field_id', 'integer', ['signed' => false])
+            ->addColumn('details_id', 'integer')
+            ->addColumn('field_id', 'integer')
             ->addColumn('value', 'string', ['null' => true])
             ->addForeignKey('details_id', 'customer_detail', 'id')
             ->addForeignKey('field_id', 'customer_field', 'id')
             ->create();
 
         $this->table('customer_locations')
-            ->addColumn('customer_id', 'integer', ['signed' => false])
-            ->addColumn('location_id', 'integer', ['signed' => false])
+            ->addColumn('customer_id', 'integer')
+            ->addColumn('location_id', 'integer')
             ->addColumn('name', 'string', ['null' => true])
             ->addForeignKey('customer_id', 'customer', 'id')
             ->addForeignKey('location_id', 'location', 'id')
@@ -57,27 +59,29 @@ final class CustomersMigration extends AbstractMigration
                 ->addForeignKey('details_id', 'customer_detail', 'id')
                 ->update();
         } else {
-            $this->query('ALTER TABLE `customer` DROP FOREIGN KEY `customer_ibfk_2`;');
+            $this->table('customer')
+                ->dropForeignKey('details_id')
+                ->update();
         }
 
         $this->table('customer_history')
-            ->addColumn('customer_id', 'integer', ['signed' => false])
+            ->addColumn('customer_id', 'integer')
             ->addColumn('date', 'datetime')
-            ->addColumn('user_id', 'integer', ['null' => true, 'signed' => false])
+            ->addColumn('user_id', 'integer', ['null' => true])
             ->addColumn('entry', 'text')
             ->addForeignKey('customer_id', 'customer', 'id')
             ->addForeignKey('user_id', 'user', 'id')
             ->create();
 
         $this->table('customer_merge', ['id' => false])
-            ->addColumn('source_customer_id', 'integer', ['signed' => false])
-            ->addColumn('target_customer_id', 'integer', ['signed' => false])
+            ->addColumn('source_customer_id', 'integer')
+            ->addColumn('target_customer_id', 'integer')
             ->addForeignKey('source_customer_id', 'customer', 'id')
             ->addForeignKey('target_customer_id', 'customer', 'id')
             ->create();
 
         $this->table('customer_external_id')
-            ->addColumn('customer_id', 'integer', ['signed' => false])
+            ->addColumn('customer_id', 'integer')
             ->addColumn('id_type', 'string')
             ->addColumn('date_created', 'datetime')
             ->addColumn('date_updated', 'datetime')
@@ -106,11 +110,16 @@ final class CustomersMigration extends AbstractMigration
 SELECT c.id, c.user_id, d.email, d.forename, d.surname, d.mobile_number, d.date_of_birth from customer c
 INNER JOIN customer_detail d on c.details_id=d.id
 VIEW;
-
-            $this->query('CREATE view customer_list AS ' . $view);
+            if ($this->getAdapter()->getAdapterType() === 'pgsql') {
+                $this->query('CREATE OR REPLACE view customer_list AS ' . $view);
+            } else {
+                $this->query('CREATE view customer_list AS ' . $view);
+            }
         } else {
             $this->query('DROP view customer_list');
         }
-        $this->query('SET FOREIGN_KEY_CHECKS=1');
+        if ($this->getAdapter()->getAdapterType() === 'mysql') {
+            $this->query('SET FOREIGN_KEY_CHECKS=1');
+        }
     }
 }
