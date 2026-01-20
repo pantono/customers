@@ -2,7 +2,7 @@
 
 namespace Pantono\Customers\Repository;
 
-use Pantono\Database\Repository\MysqlRepository;
+use Pantono\Database\Repository\DefaultRepository;
 use Pantono\Customers\Filter\CustomerFilter;
 use Pantono\Database\Query\Select\Select;
 use Pantono\Customers\Model\Customer;
@@ -10,7 +10,7 @@ use Pantono\Customers\Model\CustomerField;
 use Pantono\Authentication\Model\User;
 use Pantono\Customers\Model\CustomerDetail;
 
-class CustomersRepository extends MysqlRepository
+class CustomersRepository extends DefaultRepository
 {
     public function getCustomerById(int $id): ?array
     {
@@ -142,7 +142,17 @@ class CustomersRepository extends MysqlRepository
 
     public function recreateFlatTable(): void
     {
-        $this->getDb()->query('DROP TABLE IF EXISTS customer_flat;');
+        $db = $this->getDb();
+        $isMysql = $db instanceof \Pantono\Database\Adapter\MysqlDb;
+        $isPgsql = $db instanceof \Pantono\Database\Adapter\PgsqlDb;
+        $isMssql = $db instanceof \Pantono\Database\Adapter\MssqlDb;
+
+        if ($isMysql || $isPgsql) {
+            $db->query('DROP TABLE IF EXISTS customer_flat;');
+        } elseif ($isMssql) {
+            $db->query("IF OBJECT_ID('customer_flat', 'U') IS NOT NULL DROP TABLE customer_flat;");
+        }
+
         $fields = [
             'user_id' => ['type' => 'int', 'null' => true, 'index' => true],
             'email' => ['type' => 'varchar(255)', 'null' => false, 'index' => true],
@@ -153,37 +163,72 @@ class CustomersRepository extends MysqlRepository
         ];
         $fieldSql = [];
         $indexes = [];
+        $quote = $isMysql ? '`' : ($isPgsql ? '"' : ($isMssql ? '[' : ''));
+        $quoteEnd = $isMssql ? ']' : $quote;
+
         foreach ($fields as $name => $config) {
-            $fieldSql[] = '`' . $name . '` ' . $config['type'] . ($config['null'] ? ' NULL' : ' NOT NULL');
+            $type = $config['type'];
+            if ($isPgsql && $type === 'int') {
+                $type = 'integer';
+            }
+            $fieldSql[] = $quote . $name . $quoteEnd . ' ' . $type . ($config['null'] ? ' NULL' : ' NOT NULL');
             if ($config['index'] === true) {
-                $indexes[] = 'KEY `' . $name . '` (`' . $name . '`)';
+                if ($isMysql) {
+                    $indexes[] = 'KEY ' . $quote . $name . $quoteEnd . ' (' . $quote . $name . $quoteEnd . ')';
+                } else {
+                    $indexes[] = 'CREATE INDEX ' . $quote . 'idx_customer_flat_' . $name . $quoteEnd . ' ON ' . $quote . 'customer_flat' . $quoteEnd . ' (' . $quote . $name . $quoteEnd . ')';
+                }
             }
         }
         foreach ($this->getAllFields() as $fieldConfig) {
             $config = json_decode($fieldConfig['config'], true);
             $type = $config['sql_type'] ?? $fieldConfig['type'];
-            if ($type === 'select') {
-                $type = 'varchar(255)';
-            }
-            if ($type === 'string') {
+            if ($type === 'select' || $type === 'string') {
                 $type = 'varchar(255)';
             }
             if ($type === 'boolean') {
-                $type = 'tinyint(1)';
+                $type = $isMysql ? 'tinyint(1)' : ($isPgsql ? 'boolean' : 'bit');
+            }
+            if ($isPgsql && $type === 'int') {
+                $type = 'integer';
             }
             $index = $config['index'] ?? false;
             if ($index === true) {
-                $indexes[] = 'KEY `' . $fieldConfig['name'] . '` (`' . $fieldConfig['name'] . '`)';
+                if ($isMysql) {
+                    $indexes[] = 'KEY ' . $quote . $fieldConfig['name'] . $quoteEnd . ' (' . $quote . $fieldConfig['name'] . $quoteEnd . ')';
+                } else {
+                    $indexes[] = 'CREATE INDEX ' . $quote . 'idx_customer_flat_' . $fieldConfig['name'] . $quoteEnd . ' ON ' . $quote . 'customer_flat' . $quoteEnd . ' (' . $quote . $fieldConfig['name'] . $quoteEnd . ')';
+                }
             }
-            $fieldSql[] = '`' . $fieldConfig['name'] . '` ' . $type . ' NULL';
+            $fieldSql[] = $quote . $fieldConfig['name'] . $quoteEnd . ' ' . $type . ' NULL';
         }
 
-        $sql = 'CREATE TABLE customer_flat ( `id` int unsigned NOT NULL AUTO_INCREMENT,' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (`id`),' . PHP_EOL . implode(',' . PHP_EOL, $indexes) . ')';
-        $this->getDb()->query($sql);
+        $idSql = $quote . 'id' . $quoteEnd;
+        if ($isMysql) {
+            $idSql .= ' int unsigned NOT NULL AUTO_INCREMENT';
+        } elseif ($isPgsql) {
+            $idSql .= ' SERIAL';
+        } elseif ($isMssql) {
+            $idSql .= ' INT IDENTITY(1,1) NOT NULL';
+        }
+
+        $sql = 'CREATE TABLE ' . $quote . 'customer_flat' . $quoteEnd . ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
+        if ($isMysql && !empty($indexes)) {
+            $sql .= ',' . PHP_EOL . implode(',' . PHP_EOL, $indexes);
+        }
+        $sql .= ')';
+
+        $db->query($sql);
+
+        if (!$isMysql && !empty($indexes)) {
+            foreach ($indexes as $indexSql) {
+                $db->query($indexSql);
+            }
+        }
 
         $select = $this->getCustomerFlatBaseSelect();
 
-        $this->getDb()->query('INSERT into customer_flat (' . $select->__toString() . ')');
+        $db->query('INSERT into ' . $quote . 'customer_flat' . $quoteEnd . ' (' . $select->__toString() . ')');
     }
 
     public function getCustomerFlatBaseSelect(): Select

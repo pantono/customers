@@ -2,11 +2,11 @@
 
 namespace Pantono\Customers\Repository;
 
-use Pantono\Database\Repository\MysqlRepository;
 use Pantono\Customers\Model\Company;
 use Pantono\Customers\Filter\CompanyFilter;
+use Pantono\Database\Repository\DefaultRepository;
 
-class CompaniesRepository extends MysqlRepository
+class CompaniesRepository extends DefaultRepository
 {
     public function getCompanyById(int $id): ?array
     {
