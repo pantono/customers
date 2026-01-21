@@ -32,7 +32,7 @@ class Customer
      * @var CustomerLocation[]
      */
     #[Locator(methodName: 'getLocationsForCustomer', className: Customers::class), FieldName('$this')]
-    private ?array $locations = null;
+    private array $locations = [];
 
     public function getId(): ?int
     {
