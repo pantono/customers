@@ -326,6 +326,6 @@ class CustomersRepository extends DefaultRepository
 
     public function getLocationsForCustomer(int $id): array
     {
-        return $this->selectRowsByValues('customer_location', ['customer_id' => $id]);
+        return $this->selectRowsByValues('customer_locations', ['customer_id' => $id]);
     }
 }
