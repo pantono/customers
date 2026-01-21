@@ -7,12 +7,12 @@ use Phinx\Migration\AbstractMigration;
 final class CustomersMigration extends AbstractMigration
 {
     use \Pantono\Database\Migration\Traits\ReseedIdentityTrait;
+    use \Pantono\Database\Migration\Traits\DisableForeignKeyChecksTrait;
+
 
     public function change(): void
     {
-        if ($this->getAdapter()->getAdapterType() === 'mysql') {
-            $this->query('SET FOREIGN_KEY_CHECKS=0');
-        }
+        $this->disableForeignKeyChecks();
         $this->table('customer')
             ->addColumn('details_id', 'integer', ['null' => true])
             ->addColumn('user_id', 'integer', ['null' => true])
@@ -114,8 +114,6 @@ VIEW;
         } else {
             $this->query('DROP view customer_list');
         }
-        if ($this->getAdapter()->getAdapterType() === 'mysql') {
-            $this->query('SET FOREIGN_KEY_CHECKS=1');
-        }
+        $this->enableForeignKeyChecks();
     }
 }
