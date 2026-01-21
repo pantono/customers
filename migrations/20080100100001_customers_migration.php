@@ -17,7 +17,7 @@ final class CustomersMigration extends AbstractMigration
             ->addColumn('details_id', 'integer', ['null' => true])
             ->addColumn('user_id', 'integer', ['null' => true])
             ->addColumn('date_created', 'datetime')
-            ->addForeignKey('user_id', 'user', 'id')
+            ->addForeignKey('user_id', 'user', 'id', ['delete' => 'CASCADE'])
             ->addIndex('user_id', ['unique' => true])
             ->create();
 
@@ -30,7 +30,7 @@ final class CustomersMigration extends AbstractMigration
             ->addColumn('mobile_number', 'string', ['null' => true])
             ->addColumn('date_of_birth', 'date', ['null' => true])
             ->addColumn('field_json', 'json')
-            ->addForeignKey('customer_id', 'customer', 'id')
+            ->addForeignKey('customer_id', 'customer', 'id', ['delete' => 'CASCADE'])
             ->create();
 
         $this->table('customer_field')
@@ -44,20 +44,20 @@ final class CustomersMigration extends AbstractMigration
             ->addColumn('details_id', 'integer')
             ->addColumn('field_id', 'integer')
             ->addColumn('value', 'string', ['null' => true])
-            ->addForeignKey('details_id', 'customer_detail', 'id')
-            ->addForeignKey('field_id', 'customer_field', 'id')
+            ->addForeignKey('details_id', 'customer_detail', 'id', ['delete' => 'CASCADE'])
+            ->addForeignKey('field_id', 'customer_field', 'id', ['delete' => 'CASCADE'])
             ->create();
 
         $this->table('customer_locations')
             ->addColumn('customer_id', 'integer')
             ->addColumn('location_id', 'integer')
             ->addColumn('name', 'string', ['null' => true])
-            ->addForeignKey('customer_id', 'customer', 'id')
-            ->addForeignKey('location_id', 'location', 'id')
+            ->addForeignKey('customer_id', 'customer', 'id', ['delete' => 'CASCADE'])
+            ->addForeignKey('location_id', 'location', 'id', ['delete' => 'CASCADE'])
             ->create();
 
         $this->table('customer')
-            ->addForeignKey('details_id', 'customer_detail', 'id')
+            ->addForeignKey('details_id', 'customer_detail', 'id', ['delete' => 'CASCADE'])
             ->update();
 
         $this->table('customer_history')
@@ -65,15 +65,15 @@ final class CustomersMigration extends AbstractMigration
             ->addColumn('date', 'datetime')
             ->addColumn('user_id', 'integer', ['null' => true])
             ->addColumn('entry', 'text')
-            ->addForeignKey('customer_id', 'customer', 'id')
-            ->addForeignKey('user_id', 'user', 'id')
+            ->addForeignKey('customer_id', 'customer', 'id', ['delete' => 'CASCADE'])
+            ->addForeignKey('user_id', 'user', 'id', ['delete' => 'CASCADE'])
             ->create();
 
         $this->table('customer_merge', ['id' => false])
             ->addColumn('source_customer_id', 'integer')
             ->addColumn('target_customer_id', 'integer')
-            ->addForeignKey('source_customer_id', 'customer', 'id')
-            ->addForeignKey('target_customer_id', 'customer', 'id')
+            ->addForeignKey('source_customer_id', 'customer', 'id', ['delete' => 'CASCADE'])
+            ->addForeignKey('target_customer_id', 'customer', 'id', ['delete' => 'CASCADE'])
             ->create();
 
         $this->table('customer_external_id')
@@ -83,7 +83,7 @@ final class CustomersMigration extends AbstractMigration
             ->addColumn('date_updated', 'datetime')
             ->addColumn('identifier', 'string')
             ->addColumn('deleted', 'boolean')
-            ->addForeignKey('customer_id', 'customer', 'id')
+            ->addForeignKey('customer_id', 'customer', 'id', ['delete' => 'CASCADE'])
             ->addIndex('id_type')
             ->addIndex('identifier')
             ->addIndex(['id_type', 'identifier', 'deleted'])
