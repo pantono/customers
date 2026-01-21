@@ -110,6 +110,20 @@ class CustomersRepository extends DefaultRepository
                 $externalId->setId($externalIdId);
             }
         }
+
+        $deleteParams = ['customer_id=?' => $customer->getId()];
+        $doneIds = [];
+        foreach ($customer->getLocations() as $location) {
+            $id = $this->insertOrUpdateCheck('customer_location', 'id', $location->getId(), $location->getAllData());
+            if ($id) {
+                $location->setId($id);
+            }
+            $doneIds[] = $id;
+        }
+        if (!empty($doneIds)) {
+            $deleteParams['id NOT IN (?)'] = $doneIds;
+        }
+        $this->getDb()->delete('customer_location', $deleteParams);
     }
 
     public function getFieldById(int $id): ?array

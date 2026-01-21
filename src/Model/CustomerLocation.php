@@ -6,9 +6,12 @@ use Pantono\Locations\Model\Location;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Locations\Locations;
 use Pantono\Contracts\Attributes\FieldName;
+use Pantono\Database\Traits\SavableModel;
 
 class CustomerLocation
 {
+    use SavableModel;
+
     private ?int $id = null;
     private ?int $customerId = null;
     #[Locator(methodName: 'getLocationById', className: Locations::class), FieldName('location_id')]
