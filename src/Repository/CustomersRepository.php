@@ -9,6 +9,9 @@ use Pantono\Customers\Model\Customer;
 use Pantono\Customers\Model\CustomerField;
 use Pantono\Authentication\Model\User;
 use Pantono\Customers\Model\CustomerDetail;
+use Pantono\Database\Adapter\MysqlDb;
+use Pantono\Database\Adapter\PgsqlDb;
+use Pantono\Database\Adapter\MssqlDb;
 
 class CustomersRepository extends DefaultRepository
 {
@@ -158,9 +161,9 @@ class CustomersRepository extends DefaultRepository
     public function recreateFlatTable(): void
     {
         $db = $this->getDb();
-        $isMysql = $db instanceof \Pantono\Database\Adapter\MysqlDb;
-        $isPgsql = $db instanceof \Pantono\Database\Adapter\PgsqlDb;
-        $isMssql = $db instanceof \Pantono\Database\Adapter\MssqlDb;
+        $isMysql = $db instanceof MysqlDb;
+        $isPgsql = $db instanceof PgsqlDb;
+        $isMssql = $db instanceof MssqlDb;
 
         if ($isMysql || $isPgsql) {
             $db->query('DROP TABLE IF EXISTS customer_flat;');
@@ -195,7 +198,8 @@ class CustomersRepository extends DefaultRepository
                 }
             }
         }
-        foreach ($this->getAllFields() as $fieldConfig) {
+        $allFields = $this->getAllFields();
+        foreach ($allFields as &$fieldConfig) {
             $config = json_decode($fieldConfig['config'], true);
             $type = $config['sql_type'] ?? $fieldConfig['type'];
             if ($type === 'select' || $type === 'string') {
@@ -207,6 +211,8 @@ class CustomersRepository extends DefaultRepository
             if ($isPgsql && $type === 'int') {
                 $type = 'integer';
             }
+            $fieldConfig['resolved_type'] = $type;
+
             $index = $config['index'] ?? false;
             if ($index === true) {
                 if ($isMysql) {
@@ -241,20 +247,44 @@ class CustomersRepository extends DefaultRepository
             }
         }
 
-        $select = $this->getCustomerFlatBaseSelect();
+        $select = $this->getCustomerFlatBaseSelect($allFields);
 
         $db->query('INSERT into ' . $quote . 'customer_flat' . $quoteEnd . ' (' . $select->__toString() . ')');
     }
 
-    public function getCustomerFlatBaseSelect(): Select
+    public function getCustomerFlatBaseSelect(?array $fields = null): Select
     {
+        $db = $this->getDb();
+        $isPgsql = $db instanceof PgsqlDb;
         $select = $this->getDb()->select()->from('customer', ['id', 'user_id'])
             ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', ['email', 'forename', 'surname', 'mobile_number', 'date_of_birth']);
 
         $index = 0;
-        foreach ($this->getAllFields() as $fieldConfig) {
+        foreach ($fields ?? $this->getAllFields() as $fieldConfig) {
             $index++;
-            $select->joinLeft(['field_' . $index => 'customer_detail_field'], 'customer_detail.id=field_' . $index . '.details_id and field_' . $index . '.field_id=' . $fieldConfig['id'], ['value AS ' . $fieldConfig['name']]);
+            $valueExpr = 'field_' . $index . '.value';
+            if ($isPgsql) {
+                $type = null;
+                if (isset($fieldConfig['resolved_type'])) {
+                    $type = $fieldConfig['resolved_type'];
+                } else {
+                    $config = json_decode($fieldConfig['config'], true);
+                    $type = $config['sql_type'] ?? $fieldConfig['type'];
+                    if ($type === 'select' || $type === 'string') {
+                        $type = 'varchar(255)';
+                    }
+                    if ($type === 'boolean') {
+                        $type = 'boolean';
+                    }
+                    if ($type === 'int') {
+                        $type = 'integer';
+                    }
+                }
+                if ($type) {
+                    $valueExpr = 'CAST(' . $valueExpr . ' AS ' . $type . ')';
+                }
+            }
+            $select->joinLeft(['field_' . $index => 'customer_detail_field'], 'customer_detail.id=field_' . $index . '.details_id and field_' . $index . '.field_id=' . $fieldConfig['id'], [$valueExpr . ' AS ' . $fieldConfig['name']]);
         }
 
         return $select;
