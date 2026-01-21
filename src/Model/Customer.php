@@ -11,6 +11,7 @@ use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Core\Helper\ConfigHelper;
 use Pantono\Utilities\DateTimeParser;
 use Pantono\Authentication\Users;
+use Pantono\Locations\Model\Location;
 
 class Customer
 {
@@ -208,5 +209,24 @@ class Customer
     public function setLocations(?array $locations): void
     {
         $this->locations = $locations;
+    }
+
+    public function addLocation(Location $location, bool $defaultBilling = false, bool $defaultShipping = false): void
+    {
+        foreach ($this->getLocations() as $curLocation) {
+            if ($curLocation->getLocation()->getId() === $location->getId()) {
+                $curLocation->setDefaultBilling($defaultBilling);
+                $curLocation->setDefaultShipping($defaultShipping);
+                return;
+            }
+        }
+        $customerLocation = new CustomerLocation();
+        if ($this->getId()) {
+            $customerLocation->setCustomerId($this->getId());
+        }
+        $customerLocation->setLocation($location);
+        $customerLocation->setDefaultBilling($defaultBilling);
+        $customerLocation->setDefaultShipping($defaultShipping);
+        $this->locations[] = $customerLocation;
     }
 }

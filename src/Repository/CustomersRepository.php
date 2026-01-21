@@ -114,6 +114,7 @@ class CustomersRepository extends DefaultRepository
         $deleteParams = ['customer_id=?' => $customer->getId()];
         $doneIds = [];
         foreach ($customer->getLocations() as $location) {
+            $location->setCustomerId($customer->getId());
             $id = $this->insertOrUpdateCheck('customer_location', 'id', $location->getId(), $location->getAllData());
             if ($id) {
                 $location->setId($id);
