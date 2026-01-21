@@ -56,19 +56,9 @@ final class CustomersMigration extends AbstractMigration
             ->addForeignKey('location_id', 'location', 'id')
             ->create();
 
-        if ($this->isMigratingUp()) {
-            $this->table('customer')
-                ->addForeignKey('details_id', 'customer_detail', 'id')
-                ->update();
-        } else {
-            try {
-                $this->table('customer')
-                    ->dropForeignKey('details_id')
-                    ->update();
-            } catch (\Exception $e) {
-
-            }
-        }
+        $this->table('customer')
+            ->addForeignKey('details_id', 'customer_detail', 'id')
+            ->update();
 
         $this->table('customer_history')
             ->addColumn('customer_id', 'integer')
