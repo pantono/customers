@@ -115,7 +115,7 @@ class CustomersRepository extends DefaultRepository
         $doneIds = [];
         foreach ($customer->getLocations() as $location) {
             $location->setCustomerId($customer->getId());
-            $id = $this->insertOrUpdateCheck('customer_location', 'id', $location->getId(), $location->getAllData());
+            $id = $this->insertOrUpdateCheck('customer_locations', 'id', $location->getId(), $location->getAllData());
             if ($id) {
                 $location->setId($id);
             }
@@ -124,7 +124,7 @@ class CustomersRepository extends DefaultRepository
         if (!empty($doneIds)) {
             $deleteParams['id NOT IN (?)'] = $doneIds;
         }
-        $this->getDb()->delete('customer_location', $deleteParams);
+        $this->getDb()->delete('customer_locations', $deleteParams);
     }
 
     public function getFieldById(int $id): ?array
