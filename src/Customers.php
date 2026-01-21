@@ -20,6 +20,7 @@ use Pantono\Customers\Model\CustomerDetail;
 use Pantono\Authentication\Model\User;
 use Pantono\Customers\Model\CustomerDetailField;
 use Pantono\Authentication\Users;
+use Pantono\Customers\Model\CustomerLocation;
 
 class Customers
 {
@@ -245,5 +246,10 @@ class Customers
     public function getCustomerByUserId(int $id): ?Customer
     {
         return $this->hydrator->hydrate(Customer::class, $this->repository->getCustomerByUserId($id));
+    }
+
+    public function getLocationsForCustomer(Customer $customer): array
+    {
+        return $this->hydrator->hydrateSet(CustomerLocation::class, $this->repository->getLocationsForCustomer($customer->getId()));
     }
 }

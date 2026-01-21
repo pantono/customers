@@ -308,4 +308,9 @@ class CustomersRepository extends DefaultRepository
     {
         return $this->selectSingleRow('customer', 'user_id', $id);
     }
+
+    public function getLocationsForCustomer(int $id): array
+    {
+        return $this->selectRowsByValues('customer_location', ['customer_id' => $id]);
+    }
 }

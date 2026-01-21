@@ -27,6 +27,11 @@ class Customer
     private array $externalIds = [];
     #[NoSave]
     private bool $needsUpdate = false;
+    /**
+     * @var CustomerLocation[]
+     */
+    #[Locator(methodName: 'getLocationsForCustomer', className: Customers::class), FieldName('$this')]
+    private ?array $locations = null;
 
     public function getId(): ?int
     {
@@ -193,5 +198,15 @@ class Customer
             }
         }
         return null;
+    }
+
+    public function getLocations(): ?array
+    {
+        return $this->locations;
+    }
+
+    public function setLocations(?array $locations): void
+    {
+        $this->locations = $locations;
     }
 }
