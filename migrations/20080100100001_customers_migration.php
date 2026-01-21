@@ -6,6 +6,8 @@ use Phinx\Migration\AbstractMigration;
 
 final class CustomersMigration extends AbstractMigration
 {
+    use \Pantono\Database\Migration\Traits\ReseedIdentityTrait;
+
     public function change(): void
     {
         if ($this->getAdapter()->getAdapterType() === 'mysql') {
@@ -59,9 +61,13 @@ final class CustomersMigration extends AbstractMigration
                 ->addForeignKey('details_id', 'customer_detail', 'id')
                 ->update();
         } else {
-            $this->table('customer')
-                ->dropForeignKey('details_id')
-                ->update();
+            try {
+                $this->table('customer')
+                    ->dropForeignKey('details_id')
+                    ->update();
+            } catch (\Exception $e) {
+
+            }
         }
 
         $this->table('customer_history')
