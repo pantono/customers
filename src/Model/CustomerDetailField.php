@@ -12,7 +12,7 @@ class CustomerDetailField
     private int $detailsId;
     #[Locator(methodName: 'getFieldById', className: Customers::class), FieldName('field_id')]
     private ?CustomerField $field = null;
-    private mixed $value;
+    private mixed $value = null;
 
     public function getId(): ?int
     {
