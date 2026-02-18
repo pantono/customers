@@ -92,11 +92,11 @@ class CustomersRepository extends DefaultRepository
                 'date_created' => $customer->getDateCreated()->format('Y-m-d H:i:s'),
                 'user_id' => $customer->getUser()?->getId(),
             ]);
-            $customer->setId((int)$this->getDb()->lastInsertId());
+            $customer->setId((int)$this->getDb()->lastInsertId('customer'));
             $details->setCustomerId($customer->getId());
         }
         $this->getDb()->insert('customer_detail', $details->getAllData());
-        $details->setId((int)$this->getDb()->lastInsertId());
+        $details->setId((int)$this->getDb()->lastInsertId('customer_detail'));
         $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $details->getId()], ['id=?' => $customer->getId()]);
         foreach ($details->getFields() as $field) {
             $this->getDb()->insert('customer_detail_field', [
