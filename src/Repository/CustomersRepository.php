@@ -356,6 +356,11 @@ class CustomersRepository extends DefaultRepository
 
     public function getLocationsForCustomer(int $id): array
     {
-        return $this->selectRowsByValues('customer_locations', ['customer_id' => $id]);
+        $select = $this->getDb()->select()->from('customer_locations')
+            ->joinInner('location', 'customer_locations.location_id=location.id', [])
+            ->where('location.deleted=?', 0)
+            ->where('customer_locations.customer_id=?', $id);
+
+        return $this->getDb()->fetchAll($select);
     }
 }

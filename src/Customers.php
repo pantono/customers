@@ -151,10 +151,12 @@ class Customers
                 }
             }
         }
-        $details = $customer->getDetails();
-        if (!$details) {
+        if (!$customer->getDetails()) {
             $details = new CustomerDetail();
             $details->setDateCreated(new \DateTime);
+            $customer->setDetails($details);
+        } else {
+            $details = clone($customer->getDetails());
             $customer->setDetails($details);
         }
         if ($parameters->get('email') !== null) {
