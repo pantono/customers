@@ -4,7 +4,6 @@ namespace Pantono\Customers\Repository;
 
 use Pantono\Database\Repository\DefaultRepository;
 use Pantono\Customers\Filter\CustomerFilter;
-use Pantono\Database\Query\Select\Select;
 use Pantono\Customers\Model\Customer;
 use Pantono\Customers\Model\CustomerField;
 use Pantono\Authentication\Model\User;
@@ -12,70 +11,75 @@ use Pantono\Customers\Model\CustomerDetail;
 use Pantono\Database\Adapter\MysqlDb;
 use Pantono\Database\Adapter\PgsqlDb;
 use Pantono\Database\Adapter\MssqlDb;
+use Doctrine\DBAL\Query\QueryBuilder;
 
 class CustomersRepository extends DefaultRepository
 {
     public function getCustomerById(int $id): ?array
     {
-        return $this->selectSingleRow('customer', 'id', $id);
+        return $this->selectSingleRow($this->pt('customer'), 'id', $id);
     }
 
     public function getCustomerListById(int $id): ?array
     {
-        return $this->selectSingleRow('customer_list', 'id', $id);
+        return $this->selectSingleRow($this->pt('customer_list'), 'id', $id);
     }
 
     public function getCustomersByFilter(CustomerFilter $filter): array
     {
         $select = $this->getCustomerByFilterSelect($filter);
 
-        $filter->setTotalResults($this->getCount($select));
-        $select->limitPage($filter->getPage(), $filter->getPerPage());
+        $this->applyCountAndLimit($select, $filter);
 
         return $this->getDb()->fetchAll($select);
     }
 
     public function getCustomerListByFilter(CustomerFilter $filter): array
     {
-        $select = $this->getDb()->select()->from('customer_list');
+        $select = $this->getDb()->select('l.*')->from($this->pt('customer_list'), 'l');
         if ($filter->getSearch() !== null) {
-            $select->where('customer_list.name like ?', '%' . $filter->getSearch() . '%');
+            $select->where('l.name like :search')
+                ->setParameter('search', '%' . $filter->getSearch() . '%');
         }
         if ($filter->getEmail() !== null) {
-            $select->where('customer_list.email like ?', '%' . $filter->getEmail() . '%');
+            $select->where('customer_list.email like :email')
+                ->setParameter('email', $filter->getEmail());
         }
-        $total = $this->getCount($select);
-        $filter->setTotalResults($total);
-        $select->limitPage($filter->getPage(), $filter->getPerPage());
+        $this->applyCountAndLimit($select, $filter);
 
         return $this->getDb()->fetchAll($select);
     }
 
-    public function getCustomerByFilterSelect(CustomerFilter $filter): Select
+    public function getCustomerByFilterSelect(CustomerFilter $filter): QueryBuilder
     {
-        $select = $this->getDb()->select()->from('customer')
-            ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', []);
+        $select = $this->getDb()->select('c.*')->from($this->pt('customer'), 'c')
+            ->innerJoin('c', $this->pt('customer_detail'), 'd', 'c.details_id=d.id');
         if ($filter->getSearch() !== null) {
-            $select->where('CONCAT(customer_detail.forename, \' \', customer_detail.surname, \' \', customer_detail.emails, \' \', customer_detail.mobile_number) like ?', '%' . $filter->getSearch() . '%');
+            $select->where('CONCAT(d.forename, \' \', d.surname, \' \', d.email, \' \', d.mobile_number) like :search')
+                ->setParameter('search', '%' . $filter->getSearch() . '%');
         }
         if ($filter->getEmail() !== null) {
-            $select->where('customer_detail.email like ?', '%' . $filter->getEmail() . '%');
+            $select->where('customer_detail.email like :email')
+                ->setParameter('email', $filter->getEmail());
         }
         if ($filter->getFields() !== null) {
             $index = 0;
             foreach ($filter->getFields() as $name => $field) {
-                $select->joinInner(['value_' . $index => 'customer_detail_field'], 'customer_detail.id=value_' . $index . '.details_id', [])
-                    ->joinInner(['field_' . $index => 'customer_field'], 'value_' . $index . '.field_id=field_' . $index . '.id', [])
-                    ->where('customer_field.name=?', $name)
-                    ->where('customer_detail_field.value=?', $field);
+                $select->innerJoin('d', $this->pt('customer_detail_field'), 'value_' . $index, 'd.id=value_' . $index . '.details_id')
+                    ->innerJoin('value_' . $index, $this->pt('customer_field'), 'field_' . $index, 'value_' . $index . '.field_id=field_' . $index . '.id')
+                    ->where('field_' . $index . '.name=:name_' . $index, $name)
+                    ->setParameter('name_' . $index, $name)
+                    ->where('value_' . $index . '.value=:value_' . $index, $field)
+                    ->setParameter('value_' . $index, $field);
                 $index++;
             }
         }
 
         if ($filter->getExternalIdType() !== null) {
-            $select->joinInner('customer_external_id', 'customer.id=customer_external_id.customer_id', []);
+            $select->innerJoin('c', $this->pt('customer_external_id'), 'external_id', 'c.id=external_id.customer_id');
             if ($filter->getExternalIdValue()) {
-                $select->where('customer_external_id.identifier=?', $filter->getExternalIdValue());
+                $select->where('external_id.identifier=:id_value')
+                    ->setParameter('id_value', $filter->getExternalIdValue());
             }
         }
         return $select;
@@ -88,18 +92,18 @@ class CustomersRepository extends DefaultRepository
             throw new \RuntimeException('No customer details set before saving');
         }
         if ($customer->getId() === null) {
-            $this->getDb()->insert('customer', [
+            $this->getDb()->insert($this->pt('customer'), [
                 'date_created' => $customer->getDateCreated()->format('Y-m-d H:i:s'),
                 'user_id' => $customer->getUser()?->getId(),
             ]);
-            $customer->setId((int)$this->getDb()->lastInsertId('customer'));
+            $customer->setId((int)$this->getDb()->lastInsertId());
             $details->setCustomerId($customer->getId());
         }
-        $this->getDb()->insert('customer_detail', $details->getAllData());
-        $details->setId((int)$this->getDb()->lastInsertId('customer_detail'));
-        $this->getDb()->update('customer', ['user_id' => $customer->getUser()?->getId(), 'details_id' => $details->getId()], ['id=?' => $customer->getId()]);
+        $this->getDb()->insert($this->pt('customer_detail'), $details->getAllData());
+        $details->setId((int)$this->getDb()->lastInsertId());
+        $this->getDb()->update($this->pt('customer'), ['user_id' => $customer->getUser()?->getId(), 'details_id' => $details->getId()], ['id' => $customer->getId()]);
         foreach ($details->getFields() as $field) {
-            $this->getDb()->insert('customer_detail_field', [
+            $this->getDb()->insert($this->pt('customer_detail_field'), [
                 'field_id' => $field->getField()->getId(),
                 'value' => $field->getValue(),
                 'details_id' => $details->getId()
@@ -108,7 +112,7 @@ class CustomersRepository extends DefaultRepository
 
         foreach ($customer->getExternalIds() as $externalId) {
             $externalId->setCustomerId($customer->getId());
-            $externalIdId = $this->insertOrUpdate('customer_external_id', 'id', $externalId->getId(), $externalId->getAllData());
+            $externalIdId = $this->insertOrUpdate($this->pt('customer_external_id'), 'id', $externalId->getId(), $externalId->getAllData());
             if ($externalIdId) {
                 $externalId->setId($externalIdId);
             }
@@ -116,38 +120,40 @@ class CustomersRepository extends DefaultRepository
 
         $deleteParams = ['customer_id=?' => $customer->getId()];
         $doneIds = [];
-        foreach ($customer->getLocations() as $location) {
-            $location->setCustomerId($customer->getId());
-            $id = $this->insertOrUpdateCheck('customer_locations', 'id', $location->getId(), $location->getAllData());
-            if ($id) {
-                $location->setId($id);
+        if ($customer->getLocations() !== null) {
+            foreach ($customer->getLocations() as $location) {
+                $location->setCustomerId($customer->getId());
+                $id = $this->insertOrUpdateCheck($this->pt('customer_locations'), 'id', $location->getId(), $location->getAllData());
+                if ($id) {
+                    $location->setId($id);
+                }
+                $doneIds[] = $id;
             }
-            $doneIds[] = $id;
         }
         if (!empty($doneIds)) {
             $deleteParams['id NOT IN (?)'] = $doneIds;
         }
-        $this->getDb()->delete('customer_locations', $deleteParams);
+        $this->getDb()->delete($this->pt('customer_locations'), $deleteParams);
     }
 
     public function getFieldById(int $id): ?array
     {
-        return $this->selectSingleRow('customer_field', 'id', $id);
+        return $this->selectSingleRow($this->pt('customer_field'), 'id', $id);
     }
 
     public function getFieldByName(string $name): ?array
     {
-        return $this->selectSingleRow('customer_field', 'name', $name);
+        return $this->selectSingleRow($this->pt('customer_field'), 'name', $name);
     }
 
     public function getAllFields(): array
     {
-        return $this->selectAll('customer_field');
+        return $this->selectAll($this->pt('customer_field'));
     }
 
     public function saveField(CustomerField $field): void
     {
-        $id = $this->insertOrUpdateCheck('customer_field', 'id', $field->getId(), $field->getAllData());
+        $id = $this->insertOrUpdateCheck($this->pt('customer_field'), 'id', $field->getId(), $field->getAllData());
         if ($id) {
             $field->setId($id);
         }
@@ -155,7 +161,7 @@ class CustomersRepository extends DefaultRepository
 
     public function getExternalIdsForCustomer(Customer $customer): array
     {
-        return $this->selectRowsByValues('customer_external_id', ['customer_id' => $customer->getId(), 'deleted' => 0]);
+        return $this->selectRowsByValues($this->pt('customer_external_id'), ['customer_id' => $customer->getId(), 'deleted' => 0]);
     }
 
     public function recreateFlatTable(): void
@@ -233,7 +239,7 @@ class CustomersRepository extends DefaultRepository
             $idSql .= ' INT IDENTITY(1,1) NOT NULL';
         }
 
-        $sql = 'CREATE TABLE ' . $quote . 'customer_flat' . $quoteEnd . ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
+        $sql = 'CREATE TABLE ' . $quote . $this->pt('customer_flat') . $quoteEnd . ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
         if ($isMysql && !empty($indexes)) {
             $sql .= ',' . PHP_EOL . implode(',' . PHP_EOL, $indexes);
         }
@@ -249,16 +255,17 @@ class CustomersRepository extends DefaultRepository
 
         $select = $this->getCustomerFlatBaseSelect($allFields);
 
-        $db->query('INSERT into ' . $quote . 'customer_flat' . $quoteEnd . ' (' . $select->__toString() . ')');
+        $db->query('INSERT into ' . $quote . $this->pt('customer_flat') . $quoteEnd . ' (' . $select->__toString() . ')');
     }
 
-    public function getCustomerFlatBaseSelect(?array $fields = null): Select
+    public function getCustomerFlatBaseSelect(?array $fields = null): QueryBuilder
     {
         $db = $this->getDb();
         $isPgsql = $db instanceof PgsqlDb;
-        $select = $this->getDb()->select()->from('customer', ['id', 'user_id'])
-            ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', ['email', 'forename', 'surname', 'mobile_number', 'date_of_birth']);
-
+        $select = $this->getDb()
+            ->select('c.id, c.user_id', 'd.email', 'd.forename', 'd.surname', 'd.mobile_number', 'd.date_of_birth')
+            ->from($this->pt('customer'), 'c')
+            ->innerJoin('c', $this->pt('customer_detail'), 'd', 'c.details_id=d.id');
         $index = 0;
         foreach ($fields ?? $this->getAllFields() as $fieldConfig) {
             $index++;
@@ -284,7 +291,8 @@ class CustomersRepository extends DefaultRepository
                     $valueExpr = 'CAST(' . $valueExpr . ' AS ' . $type . ')';
                 }
             }
-            $select->joinLeft(['field_' . $index => 'customer_detail_field'], 'customer_detail.id=field_' . $index . '.details_id and field_' . $index . '.field_id=' . $fieldConfig['id'], [$valueExpr . ' AS ' . $fieldConfig['name']]);
+            $select->leftJoin('d', $this->pt('customer_detail_field'), 'field_' . $index, 'field_' . $index . '.details_id=d.id and field_' . $index . '.field_id=' . $fieldConfig['id']);
+            $select->addSelect($valueExpr . ' as ' . $fieldConfig['name']);
         }
 
         return $select;
@@ -292,7 +300,7 @@ class CustomersRepository extends DefaultRepository
 
     public function updateCustomerFlat(Customer $customer): void
     {
-        $this->getDb()->delete('customer_flat', ['id=?' => $customer->getId()]);
+        $this->getDb()->createQueryBuilder()->delete($this->pt('customer_flat'))->where('id = :id')->setParameter('id', $customer->getId())->executeQuery();
 
         if (!$customer->getDetails()) {
             return;
@@ -314,7 +322,7 @@ class CustomersRepository extends DefaultRepository
             }
         }
         try {
-            $this->getDb()->insert('customer_flat', $fields);
+            $this->getDb()->insert($this->pt('customer_flat'), $fields);
         } catch (\PDOException $e) {
 
         }
@@ -322,21 +330,22 @@ class CustomersRepository extends DefaultRepository
 
     public function getCustomerByEmail(string $email): ?array
     {
-        $select = $this->getDb()->select()->from('customer')
-            ->joinInner('customer_detail', 'customer.details_id=customer_detail.id', [])
-            ->where('customer_detail.email=?', $email);
+        $select = $this->getDb()->select('c.*')->from('customer', 'c')
+            ->innerJoin('c', $this->pt('customer_detail'), 'd', 'c.details_id=d.id')
+            ->where('customer_detail.email=:email')
+            ->setParameter('email', $email);
 
-        return $this->selectSingleRowFromQuery($select);
+        return $this->getDb()->fetchRow($select);
     }
 
     public function getDetailsById(int $id): ?array
     {
-        return $this->selectSingleRow('customer_detail', 'id', $id);
+        return $this->selectSingleRow($this->pt('customer_detail'), 'id', $id);
     }
 
     public function addHistoryToCustomer(Customer $customer, ?User $user, string $entry): void
     {
-        $this->getDb()->insert('customer_history', [
+        $this->getDb()->insert($this->pt('customer_history'), [
             'customer_id' => $customer->getId(),
             'date' => (new \DateTime)->format('Y-m-d H:i:s'),
             'user_id' => $user?->getId(),
@@ -346,20 +355,21 @@ class CustomersRepository extends DefaultRepository
 
     public function getFieldsForCustomerDetail(CustomerDetail $detail): array
     {
-        return $this->selectRowsByValues('customer_detail_field', ['details_id' => $detail->getId()]);
+        return $this->selectRowsByValues($this->pt('customer_detail_field'), ['details_id' => $detail->getId()]);
     }
 
     public function getCustomerByUserId(int $id): ?array
     {
-        return $this->selectSingleRow('customer', 'user_id', $id);
+        return $this->selectSingleRow($this->pt('customer'), 'user_id', $id);
     }
 
     public function getLocationsForCustomer(int $id): array
     {
-        $select = $this->getDb()->select()->from('customer_locations')
-            ->joinInner('location', 'customer_locations.location_id=location.id', [])
-            ->where('location.deleted=?', 0)
-            ->where('customer_locations.customer_id=?', $id);
+        $select = $this->getDb()->select('cl.*')->from('customer_locations', 'cl')
+            ->innerJoin('cl', $this->pt('location'), 'l', 'cl.location_id=l.id')
+            ->where('l.deleted=0')
+            ->where('cl.customer_id=:customer_id')
+            ->setParameter('customer_id', $id);
 
         return $this->getDb()->fetchAll($select);
     }

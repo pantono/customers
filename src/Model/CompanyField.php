@@ -65,6 +65,9 @@ class CompanyField
     {
         $type = $this->getType()?->getType();
         $value = $this->getValue();
+        if (!$type) {
+            return $value;
+        }
         if ($type === 'int') {
             return (int)$value;
         }

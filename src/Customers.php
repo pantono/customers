@@ -252,6 +252,9 @@ class Customers
 
     public function getLocationsForCustomer(Customer $customer): array
     {
+        if (!$customer->getId()) {
+            return [];
+        }
         return $this->hydrator->hydrateSet(CustomerLocation::class, $this->repository->getLocationsForCustomer($customer->getId()));
     }
 }

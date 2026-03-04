@@ -13,7 +13,7 @@
     "pantono/cache": "^1.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "10.3.4",
+    "phpunit/phpunit": "13",
     "phpstan/phpstan": "^1.10"
   },
   "license": "proprietary",

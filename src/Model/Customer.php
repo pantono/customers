@@ -201,12 +201,12 @@ class Customer
         return null;
     }
 
-    public function getLocations(): ?array
+    public function getLocations(): array
     {
         return $this->locations;
     }
 
-    public function setLocations(?array $locations): void
+    public function setLocations(array $locations): void
     {
         $this->locations = $locations;
     }
