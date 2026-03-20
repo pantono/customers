@@ -118,7 +118,8 @@ class CustomersRepository extends DefaultRepository
             }
         }
 
-        $deleteParams = ['customer_id=?' => $customer->getId()];
+        $deleteQb = $this->getDb()->createQueryBuilder()->delete($this->pt('customer_locations'))
+            ->whereParam('customer_id = ?', $customer->getId());
         $doneIds = [];
         if ($customer->getLocations() !== null) {
             foreach ($customer->getLocations() as $location) {
@@ -131,9 +132,9 @@ class CustomersRepository extends DefaultRepository
             }
         }
         if (!empty($doneIds)) {
-            $deleteParams['id NOT IN (?)'] = $doneIds;
+            $deleteQb->whereParam('id NOT IN (?)', $doneIds);
         }
-        $this->getDb()->delete($this->pt('customer_locations'), $deleteParams);
+        $deleteQb->executeQuery();
     }
 
     public function getFieldById(int $id): ?array
