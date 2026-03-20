@@ -12,6 +12,7 @@ use Pantono\Database\Adapter\MysqlDb;
 use Pantono\Database\Adapter\PgsqlDb;
 use Pantono\Database\Adapter\MssqlDb;
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\ArrayParameterType;
 
 class CustomersRepository extends DefaultRepository
 {
@@ -132,7 +133,8 @@ class CustomersRepository extends DefaultRepository
             }
         }
         if (!empty($doneIds)) {
-            $deleteQb->whereParam('id NOT IN (?)', $doneIds);
+            $deleteQb->where('id not in (:ids)')
+                ->setParameter('ids', $doneIds, ArrayParameterType::INTEGER);
         }
         $deleteQb->executeQuery();
     }
