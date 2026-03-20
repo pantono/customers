@@ -13,7 +13,7 @@ class CustomerExternalId
     private int $customerId;
     private \DateTimeInterface $dateCreated;
     private \DateTimeInterface $dateUpdated;
-    private mixed $identifier;
+    private string $identifier;
     private bool $deleted;
 
     public function getId(): ?int
@@ -66,12 +66,12 @@ class CustomerExternalId
         $this->dateUpdated = $dateUpdated;
     }
 
-    public function getIdentifier(): mixed
+    public function getIdentifier(): string
     {
         return $this->identifier;
     }
 
-    public function setIdentifier(mixed $identifier): void
+    public function setIdentifier(string $identifier): void
     {
         $this->identifier = $identifier;
     }
