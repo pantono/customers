@@ -84,6 +84,11 @@ class Customer
         $this->externalIds = $externalIds;
     }
 
+    public function addExternalId(CustomerExternalId $externalId): void
+    {
+        $this->externalIds[] = $externalId;
+    }
+
     public function isNeedsUpdate(): bool
     {
         return $this->needsUpdate;
