@@ -10,7 +10,7 @@ final class CustomersMigration extends AbstractMigration
     use \Pantono\Database\Migration\Traits\DisableForeignKeyChecksTrait;
 
 
-    public function change(): void
+    public function up(): void
     {
         $this->disableForeignKeyChecks();
         $this->table('customer')
@@ -101,19 +101,34 @@ final class CustomersMigration extends AbstractMigration
             ->addIndex('surname')
             ->create();
 
-        if ($this->isMigratingUp()) {
-            $view = <<<VIEW
+        $view = <<<VIEW
 SELECT c.id, c.user_id, d.email, d.forename, d.surname, d.mobile_number, d.date_of_birth from customer c
 INNER JOIN customer_detail d on c.details_id=d.id
 VIEW;
-            if ($this->getAdapter()->getAdapterType() === 'pgsql') {
-                $this->query('CREATE OR REPLACE view customer_list AS ' . $view);
-            } else {
-                $this->query('CREATE view customer_list AS ' . $view);
-            }
+        if ($this->getAdapter()->getAdapterType() === 'pgsql') {
+            $this->query('CREATE OR REPLACE view customer_list AS ' . $view);
         } else {
-            $this->query('DROP view customer_list');
+            $this->query('CREATE view customer_list AS ' . $view);
         }
+        $this->enableForeignKeyChecks();
+    }
+
+    public function down(): void
+    {
+        $this->disableForeignKeyChecks();
+        $this->query('DROP view customer_list');
+        $this->table('customer_flat')->drop()->save();
+        $this->table('customer_external_id')->drop()->save();
+        $this->table('customer_merge')->drop()->save();
+        $this->table('customer_history')->drop()->save();
+        $this->table('customer_locations')->drop()->save();
+        $this->table('customer_detail_field')->drop()->save();
+        $this->table('customer_field')->drop()->save();
+        $this->table('customer')
+            ->dropForeignKey('details_id')
+            ->save();
+        $this->table('customer_detail')->drop()->save();
+        $this->table('customer')->drop()->save();
         $this->enableForeignKeyChecks();
     }
 }
