@@ -60,7 +60,7 @@ class CustomersRepository extends DefaultRepository
                 ->setParameter('search', '%' . $filter->getSearch() . '%');
         }
         if ($filter->getEmail() !== null) {
-            $select->where('customer_detail.email like :email')
+            $select->where('d.email like :email')
                 ->setParameter('email', $filter->getEmail());
         }
         if ($filter->getFields() !== null) {
@@ -335,7 +335,7 @@ class CustomersRepository extends DefaultRepository
     {
         $select = $this->getDb()->select('c.*')->from('customer', 'c')
             ->innerJoin('c', $this->pt('customer_detail'), 'd', 'c.details_id=d.id')
-            ->where('customer_detail.email=:email')
+            ->where('d.email=:email')
             ->setParameter('email', $email);
 
         return $this->getDb()->fetchRow($select);
