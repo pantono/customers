@@ -242,7 +242,7 @@ class CustomersRepository extends DefaultRepository
             $idSql .= ' INT IDENTITY(1,1) NOT NULL';
         }
 
-        $sql = 'CREATE TABLE ' . $this->pt('customer_flat') .  ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
+        $sql = 'CREATE TABLE ' . $this->pt('customer_flat') . ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
         if ($isMysql && !empty($indexes)) {
             $sql .= ',' . PHP_EOL . implode(',' . PHP_EOL, $indexes);
         }
@@ -258,7 +258,7 @@ class CustomersRepository extends DefaultRepository
 
         $select = $this->getCustomerFlatBaseSelect($allFields);
 
-        $db->query('INSERT into ' . $quote . $this->pt('customer_flat') . $quoteEnd . ' (' . $select->__toString() . ')');
+        $db->query('INSERT into ' . $this->pt('customer_flat') . ' (' . $select->__toString() . ')');
     }
 
     public function getCustomerFlatBaseSelect(?array $fields = null): QueryBuilder
