@@ -242,7 +242,7 @@ class CustomersRepository extends DefaultRepository
             $idSql .= ' INT IDENTITY(1,1) NOT NULL';
         }
 
-        $sql = 'CREATE TABLE ' . $quote . $this->pt('customer_flat') . $quoteEnd . ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
+        $sql = 'CREATE TABLE ' . $this->pt('customer_flat') .  ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
         if ($isMysql && !empty($indexes)) {
             $sql .= ',' . PHP_EOL . implode(',' . PHP_EOL, $indexes);
         }
