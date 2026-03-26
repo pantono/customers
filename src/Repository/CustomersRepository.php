@@ -120,7 +120,8 @@ class CustomersRepository extends DefaultRepository
         }
 
         $deleteQb = $this->getDb()->createQueryBuilder()->delete($this->pt('customer_locations'))
-            ->whereParam('customer_id = ?', $customer->getId());
+            ->andWhere('customer_id = :id')
+            ->setParameter('id', $customer->getId());
         $doneIds = [];
         if ($customer->getLocations() !== null) {
             foreach ($customer->getLocations() as $location) {
@@ -133,7 +134,7 @@ class CustomersRepository extends DefaultRepository
             }
         }
         if (!empty($doneIds)) {
-            $deleteQb->where('id not in (:ids)')
+            $deleteQb->andWhere('id not in (:ids)')
                 ->setParameter('ids', $doneIds, ArrayParameterType::INTEGER);
         }
         $deleteQb->executeQuery();
