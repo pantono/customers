@@ -37,7 +37,7 @@ class CompaniesRepository extends DefaultRepository
 
         $qb = $this->getDb()->createQueryBuilder();
         $qb->delete('company_field')
-            ->where('company_id = :company_id')
+            ->andWhere('company_id = :company_id')
             ->setParameter('company_id', $company->getId());
         $ids = [];
         foreach ($company->getFields() as $field) {
@@ -49,7 +49,7 @@ class CompaniesRepository extends DefaultRepository
             $ids[] = $id;
         }
         if (!empty($ids)) {
-            $qb->where('id NOT IN (:ids)')
+            $qb->andWhere('id NOT IN (:ids)')
                 ->setParameter('ids', $ids, ArrayParameterType::INTEGER);
         }
         $qb->executeQuery();
