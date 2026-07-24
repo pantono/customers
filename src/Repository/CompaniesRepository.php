@@ -59,7 +59,7 @@ class CompaniesRepository extends DefaultRepository
     {
         $select = $this->getDb()->select('sf.*')->from($this->pt('company_file'), 'cf')
             ->innerJoin('cf', $this->pt('stored_file'), 'sf', 'cf.file_id=sf.id')
-            ->where('cf.company_id=:company_id')
+            ->andWhere('cf.company_id=:company_id')
             ->setParameter('company_id', $companyId);
 
         return $this->getDb()->fetchAll($select);
@@ -70,27 +70,27 @@ class CompaniesRepository extends DefaultRepository
         $select = $this->getDb()->select('c.*')->from('company', 'c');
 
         if ($filter->getStatus() !== null) {
-            $select->where('c.status_id=:status_id')
+            $select->andWhere('c.status_id=:status_id')
                 ->setParameter('status_id', $filter->getStatus()->getId());
         }
         if ($filter->getSearch() !== null) {
-            $select->where('(name like :search or email_address like :search)')
+            $select->andWhere('(name like :search or email_address like :search)')
                 ->setParameter('search', '%' . $filter->getSearch() . '%');
         }
         if ($filter->getDateCreatedStart() !== null) {
-            $select->where('date_created >= :date_created_start')
+            $select->andWhere('date_created >= :date_created_start')
                 ->setParameter('date_created_start', $filter->getDateCreatedStart()->format('Y-m-d H:i:s'));
         }
         if ($filter->getDateCreatedEnd() !== null) {
-            $select->where('date_created <= :date_created_end')
+            $select->andWhere('date_created <= :date_created_end')
                 ->setParameter('date_created_end', $filter->getDateCreatedEnd()->format('Y-m-d H:i:s'));
         }
         if ($filter->getDateUpdatedStart() !== null) {
-            $select->where('date_updated >= :date_updated_start')
+            $select->andWhere('date_updated >= :date_updated_start')
                 ->setParameter('date_updated_start', $filter->getDateUpdatedStart()->format('Y-m-d H:i:s'));
         }
         if ($filter->getDateUpdatedEnd() !== null) {
-            $select->where('date_updated <= :date_updated_end')
+            $select->andWhere('date_updated <= :date_updated_end')
                 ->setParameter('date_updated_end', $filter->getDateUpdatedEnd()->format('Y-m-d H:i:s'));
         }
         if ($filter->getFields() !== null) {
@@ -98,9 +98,9 @@ class CompaniesRepository extends DefaultRepository
             foreach ($filter->getFields() as $name => $value) {
                 $select->innerJoin('c', $this->pt('company_field'), 'value_' . $index, 'c.id=value_' . $index . '.company_id')
                     ->innerJoin('value_' . $index, $this->pt('company_field_type'), 'field_' . $index, 'value_' . $index . '.field_type_id=field_' . $index . '.id')
-                    ->where('field_' . $index . '.name=:name_' . $index)
+                    ->andWhere('field_' . $index . '.name=:name_' . $index)
                     ->setParameter('name_' . $index, $name)
-                    ->where('value_' . $index . '.value=:value_' . $index)
+                    ->andWhere('value_' . $index . '.value=:value_' . $index)
                     ->setParameter('value_' . $index, $value);
             }
         }
