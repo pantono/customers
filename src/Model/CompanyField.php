@@ -68,6 +68,9 @@ class CompanyField
         if (!$type) {
             return $value;
         }
+        if (!$value) {
+            return $value;
+        }
         if ($type === 'int') {
             return (int)$value;
         }
