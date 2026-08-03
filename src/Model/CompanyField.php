@@ -84,9 +84,17 @@ class CompanyField
             return (bool)$value;
         }
         if ($type === 'file') {
+            $value = (int)$value;
+            if (!$value) {
+                return $value;
+            }
             return StaticLocator::getLocator()->lookupRecord(StoredFile::class, $value);
         }
         if (str_starts_with($type, 'lookup:')) {
+            $value = (int)$value;
+            if (!$value) {
+                return $value;
+            }
             return StaticLocator::getLocator()->lookupRecord(substr($type, 7), $value);
         }
         return $value;
