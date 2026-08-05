@@ -6,20 +6,21 @@ use Pantono\Authentication\Model\User;
 use Pantono\Contracts\Attributes\Locator;
 use Pantono\Customers\Customers;
 use Pantono\Contracts\Attributes\FieldName;
-use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Core\Helper\ConfigHelper;
 use Pantono\Utilities\DateTimeParser;
-use Pantono\Authentication\Users;
 use Pantono\Locations\Model\Location;
+use Pantono\Contracts\Attributes\Database\OneToOne;
+use Pantono\Contracts\Attributes\DatabaseTable;
 
+#[DatabaseTable('customer')]
 class Customer
 {
     private ?int $id = null;
     private \DateTimeInterface $dateCreated;
-    #[Locator(methodName: 'getUserById', className: Users::class), FieldName('user_id'), Lazy]
+    #[OneToOne(User::class), FieldName('user_id')]
     private ?User $user = null;
-    #[Locator(methodName: 'getDetailsById', className: Customers::class), FieldName('details_id')]
+    #[OneToOne(CustomerDetail::class), FieldName('details_id')]
     private ?CustomerDetail $details = null;
     /**
      * @var CustomerExternalId[]

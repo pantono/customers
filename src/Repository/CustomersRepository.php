@@ -123,15 +123,13 @@ class CustomersRepository extends DefaultRepository
             ->andWhere('customer_id = :id')
             ->setParameter('id', $customer->getId());
         $doneIds = [];
-        if ($customer->getLocations() !== null) {
-            foreach ($customer->getLocations() as $location) {
-                $location->setCustomerId($customer->getId());
-                $id = $this->insertOrUpdateCheck($this->pt('customer_locations'), 'id', $location->getId(), $location->getAllData());
-                if ($id) {
-                    $location->setId($id);
-                }
-                $doneIds[] = $id;
+        foreach ($customer->getLocations() as $location) {
+            $location->setCustomerId($customer->getId());
+            $id = $this->insertOrUpdateCheck($this->pt('customer_locations'), 'id', $location->getId(), $location->getAllData());
+            if ($id) {
+                $location->setId($id);
             }
+            $doneIds[] = $id;
         }
         if (!empty($doneIds)) {
             $deleteQb->andWhere('id not in (:ids)')
@@ -244,14 +242,14 @@ class CustomersRepository extends DefaultRepository
         }
 
         $sql = 'CREATE TABLE ' . $this->pt('customer_flat') . ' (' . $idSql . ',' . implode(',' . PHP_EOL, $fieldSql) . ',' . PHP_EOL . 'PRIMARY KEY (' . $quote . 'id' . $quoteEnd . ')';
-        if ($isMysql && !empty($indexes)) {
+        if ($isMysql) {
             $sql .= ',' . PHP_EOL . implode(',' . PHP_EOL, $indexes);
         }
         $sql .= ')';
 
         $db->query($sql);
 
-        if (!$isMysql && !empty($indexes)) {
+        if (!$isMysql) {
             foreach ($indexes as $indexSql) {
                 $db->query($indexSql);
             }

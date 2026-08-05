@@ -2,10 +2,9 @@
 
 namespace Pantono\Customers\Model;
 
-use Pantono\Contracts\Attributes\Locator;
-use Pantono\Customers\Companies;
+use Pantono\Contracts\Attributes\DatabaseTable;
 
-#[Locator(methodName: 'getCompanyStatusById', className: Companies::class)]
+#[DatabaseTable('company_status')]
 class CompanyStatus
 {
     private ?int $id = null;

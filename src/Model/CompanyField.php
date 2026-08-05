@@ -2,22 +2,22 @@
 
 namespace Pantono\Customers\Model;
 
-use Pantono\Contracts\Attributes\Locator;
-use Pantono\Customers\Companies;
 use Pantono\Contracts\Attributes\FieldName;
-use Pantono\Contracts\Attributes\Lazy;
 use Pantono\Utilities\DateTimeParser;
 use Pantono\Database\Traits\SavableModel;
 use Pantono\Hydrator\Locator\StaticLocator;
 use Pantono\Storage\Model\StoredFile;
+use Pantono\Contracts\Attributes\Database\OneToOne;
+use Pantono\Contracts\Attributes\DatabaseTable;
 
+#[DatabaseTable('company_field')]
 class CompanyField
 {
     use SavableModel;
 
     private ?int $id = null;
     private int $companyId;
-    #[Locator(methodName: 'getFieldTypeById', className: Companies::class), FieldName('field_type_id'), Lazy]
+    #[OneToOne(targetModel: CompanyFieldType::class), FieldName('field_type_id')]
     private ?CompanyFieldType $type = null;
     private string $value;
 

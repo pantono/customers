@@ -2,17 +2,16 @@
 
 namespace Pantono\Customers\Model;
 
-use Pantono\Contracts\Attributes\Locator;
-use Pantono\Customers\Companies;
 use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Locations\Model\Location;
-use Pantono\Contracts\Attributes\NoSave;
 use Pantono\Database\Traits\SavableModel;
-use Pantono\Contracts\Attributes\Lazy;
-use Pantono\Locations\Locations;
 use Pantono\Storage\Model\StoredFile;
+use Pantono\Contracts\Attributes\DatabaseTable;
+use Pantono\Contracts\Attributes\Database\OneToOne;
+use Pantono\Contracts\Attributes\Database\ManyToMany;
+use Pantono\Contracts\Attributes\Database\OneToMany;
 
-#[Locator(methodName: 'getCompanyById', className: Companies::class)]
+#[DatabaseTable('company')]
 class Company
 {
     use SavableModel;
@@ -20,10 +19,10 @@ class Company
     private ?int $id = null;
     private \DateTimeImmutable $dateCreated;
     private \DateTimeImmutable $dateUpdated;
-    #[FieldName('status_id'), Locator(methodName: 'getCompanyStatusById', className: Companies::class)]
+    #[OneToOne(CompanyStatus::class), FieldName('status_id')]
     private ?CompanyStatus $status = null;
     private string $name;
-    #[FieldName('location_id'), Locator(methodName: 'getLocationById', className: Locations::class), Lazy]
+    #[OneToOne(Location::class), FieldName('location_id')]
     private ?Location $location = null;
     private ?string $phoneNumber = null;
     private ?string $emailAddress = null;
@@ -31,12 +30,12 @@ class Company
     /**
      * @var StoredFile[]
      */
-    #[FieldName('id'), Locator(methodName: 'getFilesForCompany', className: Companies::class), NoSave, Lazy]
+    #[ManyToMany(joinTable: 'company_file', joinColumn: 'company_id', inverseJoinColumn: 'file_id', targetModel: StoredFile::class)]
     private array $files = [];
     /**
      * @var CompanyField[]
      */
-    #[FieldName('id'), Locator(methodName: 'getFieldsForCompany', className: Companies::class), NoSave, Lazy]
+    #[OneToMany(targetModel: CompanyField::class, mappedBy: 'company_id')]
     private array $fields = [];
 
     public function getId(): ?int

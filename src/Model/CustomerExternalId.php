@@ -3,7 +3,9 @@
 namespace Pantono\Customers\Model;
 
 use Pantono\Database\Traits\SavableModel;
+use Pantono\Contracts\Attributes\DatabaseTable;
 
+#[DatabaseTable('customer_external_id')]
 class CustomerExternalId
 {
     use SavableModel;

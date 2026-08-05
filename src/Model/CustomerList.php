@@ -2,6 +2,9 @@
 
 namespace Pantono\Customers\Model;
 
+use Pantono\Contracts\Attributes\DatabaseTable;
+
+#[DatabaseTable('customer_list')]
 class CustomerList
 {
     private int $id;

@@ -3,18 +3,19 @@
 namespace Pantono\Customers\Model;
 
 use Pantono\Locations\Model\Location;
-use Pantono\Contracts\Attributes\Locator;
-use Pantono\Locations\Locations;
 use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Database\Traits\SavableModel;
+use Pantono\Contracts\Attributes\DatabaseTable;
+use Pantono\Contracts\Attributes\Database\OneToOne;
 
+#[DatabaseTable('customer_location')]
 class CustomerLocation
 {
     use SavableModel;
 
     private ?int $id = null;
     private ?int $customerId = null;
-    #[Locator(methodName: 'getLocationById', className: Locations::class), FieldName('location_id')]
+    #[OneToOne(targetModel: Location::class), FieldName('location_id')]
     private ?Location $location = null;
     private string $name = '';
     private bool $defaultBilling = false;

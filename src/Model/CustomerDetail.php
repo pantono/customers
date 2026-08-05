@@ -8,7 +8,9 @@ use Pantono\Contracts\Attributes\Locator;
 use Pantono\Customers\Customers;
 use Pantono\Contracts\Attributes\FieldName;
 use Pantono\Contracts\Attributes\DateFormat;
+use Pantono\Contracts\Attributes\DatabaseTable;
 
+#[DatabaseTable('customer_detail')]
 class CustomerDetail
 {
     use SavableModel;

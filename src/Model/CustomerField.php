@@ -4,7 +4,9 @@ namespace Pantono\Customers\Model;
 
 use Pantono\Contracts\Attributes\Filter;
 use Pantono\Database\Traits\SavableModel;
+use Pantono\Contracts\Attributes\DatabaseTable;
 
+#[DatabaseTable('customer_field')]
 class CustomerField
 {
     use SavableModel;

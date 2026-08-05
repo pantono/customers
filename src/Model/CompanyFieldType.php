@@ -2,6 +2,9 @@
 
 namespace Pantono\Customers\Model;
 
+use Pantono\Contracts\Attributes\DatabaseTable;
+
+#[DatabaseTable('company_field_type')]
 class CompanyFieldType
 {
     private ?int $id = null;
