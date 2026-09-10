@@ -94,8 +94,8 @@ class CompaniesRepository extends DefaultRepository
                 ->setParameter('date_updated_end', $filter->getDateUpdatedEnd()->format('Y-m-d H:i:s'));
         }
         if ($filter->getName() !== null) {
-            $select->andWhere('name <> :name')
-                ->setParameter(':name', $filter->getName());
+            $select->andWhere('name <> :company_name')
+                ->setParameter('company_name', $filter->getName());
         }
         if ($filter->getFields() !== null) {
             $index = 0;
