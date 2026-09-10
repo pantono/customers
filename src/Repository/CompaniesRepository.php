@@ -97,6 +97,10 @@ class CompaniesRepository extends DefaultRepository
             $select->andWhere('name = :company_name')
                 ->setParameter('company_name', $filter->getName());
         }
+        if ($filter->getEmailAddress() !== null) {
+            $select->andWhere('email_address = :email_address')
+                ->setParameter('email_address', $filter->getEmailAddress());
+        }
         if ($filter->getFields() !== null) {
             $index = 0;
             foreach ($filter->getFields() as $name => $value) {

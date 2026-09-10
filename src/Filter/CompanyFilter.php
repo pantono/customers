@@ -13,6 +13,7 @@ class CompanyFilter implements PageableInterface
     private ?CompanyStatus $status = null;
     private ?string $search = null;
     private ?string $name = null;
+    private ?string $emailAddress = null;
     private ?\DateTimeInterface $dateCreatedStart = null;
     private ?\DateTimeInterface $dateCreatedEnd = null;
     private ?\DateTimeInterface $dateUpdatedStart = null;
@@ -90,6 +91,16 @@ class CompanyFilter implements PageableInterface
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getEmailAddress(): ?string
+    {
+        return $this->emailAddress;
+    }
+
+    public function setEmailAddress(?string $emailAddress): void
+    {
+        $this->emailAddress = $emailAddress;
     }
 
     public function addField(string $name, mixed $value): void
